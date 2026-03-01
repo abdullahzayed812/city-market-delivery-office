@@ -53,18 +53,22 @@ const DeliveriesScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.addressSection}>
-          <View style={styles.addressRow}>
-            <View style={styles.indicatorContainer}>
-              <View style={[styles.dot, { backgroundColor: theme.colors.primary }]} />
-              <View style={styles.line} />
+          {item.pickupLocations?.map((loc: any, index: number) => (
+            <View key={index} style={styles.addressRow}>
+              <View style={styles.indicatorContainer}>
+                <View style={[styles.dot, { backgroundColor: theme.colors.primary }]} />
+                <View style={styles.line} />
+              </View>
+              <View style={styles.addressInfo}>
+                <Text style={styles.addressLabel}>
+                  {t('deliveries.pickup')} {item.pickupLocations.length > 1 ? `#${index + 1}` : ''}
+                </Text>
+                <Text style={styles.addressText} numberOfLines={1}>
+                  {loc.address}
+                </Text>
+              </View>
             </View>
-            <View style={styles.addressInfo}>
-              <Text style={styles.addressLabel}>{t('deliveries.pickup')}</Text>
-              <Text style={styles.addressText} numberOfLines={1}>
-                {item.pickupLocations?.[0]?.address || t('deliveries.pickup_location')}
-              </Text>
-            </View>
-          </View>
+          ))}
           
           <View style={styles.addressRow}>
             <View style={styles.indicatorContainer}>
@@ -170,7 +174,7 @@ const styles = StyleSheet.create({
   dot: { width: 10, height: 10, borderRadius: 5 },
   line: { width: 1, height: 24, backgroundColor: theme.colors.border, marginVertical: 4 },
   addressInfo: { flex: 1, marginStart: 8 },
-  addressLabel: { fontSize: 10, color: theme.colors.textLight, textTransform: 'uppercase', letterSpacing: 1 },
+  addressLabel: { fontSize: 10, color: theme.colors.textMuted, textTransform: 'uppercase', letterSpacing: 1 },
   addressText: { fontSize: 14, color: theme.colors.secondary, fontWeight: theme.typography.weights.medium, marginTop: 2 },
   footer: { 
     flexDirection: 'row', 

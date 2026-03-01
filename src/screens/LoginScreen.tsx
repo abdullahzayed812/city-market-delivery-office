@@ -16,7 +16,9 @@ import { Mail, Lock, Truck, ChevronRight } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../theme';
 import { useAuth } from '../app/AuthContext';
+import { AuthService } from '../services/api/authService';
 import Toast from 'react-native-toast-message';
+import { UserRole } from '@city-market/shared';
 
 const LoginScreen = () => {
   const { t, i18n } = useTranslation();
@@ -38,7 +40,15 @@ const LoginScreen = () => {
 
     setLoading(true);
     try {
-      await signIn({ email, password });
+      const data = await AuthService.login({ email, password });
+
+      if (data.user?.role !== UserRole.DELIVERY_MANAGER) {
+        throw new Error(
+          'Unauthorized: Only delivery managers can access this app',
+        );
+      }
+
+      await signIn(data.user, data.accessToken, data.refreshToken);
       Toast.show({ type: 'success', text1: t('common.welcome_back') });
     } catch (error: any) {
       Toast.show({

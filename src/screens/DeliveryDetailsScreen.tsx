@@ -95,28 +95,29 @@ const DeliveryDetailsScreen = ({ route }: any) => {
             {t('deliveries.route_details')}
           </Text>
 
-          <View style={styles.timelineItem}>
-            <View style={styles.timelineLeft}>
-              <Circle
-                size={16}
-                color={theme.colors.primary}
-                fill={theme.colors.primary}
-              />
-              <View style={styles.timelineLine} />
-            </View>
-            <View style={styles.timelineRight}>
-              <View style={styles.pointHeader}>
-                <Store size={14} color={theme.colors.textMuted} />
-                <Text style={styles.pointLabel}>
-                  {t('deliveries.pickup_location')}
+          {delivery.pickupLocations?.map((loc: any, index: number) => (
+            <View key={index} style={styles.timelineItem}>
+              <View style={styles.timelineLeft}>
+                <Circle
+                  size={16}
+                  color={theme.colors.primary}
+                  fill={theme.colors.primary}
+                />
+                <View style={styles.timelineLine} />
+              </View>
+              <View style={styles.timelineRight}>
+                <View style={styles.pointHeader}>
+                  <Store size={14} color={theme.colors.textMuted} />
+                  <Text style={styles.pointLabel}>
+                    {t('deliveries.pickup_location')} {delivery.pickupLocations.length > 1 ? `#${index + 1}` : ''}
+                  </Text>
+                </View>
+                <Text style={styles.addressText}>
+                  {loc.address}
                 </Text>
               </View>
-              <Text style={styles.addressText}>
-                {delivery.pickupLocations?.[0]?.address ||
-                  t('deliveries.pickup_location')}
-              </Text>
             </View>
-          </View>
+          ))}
 
           <View style={styles.timelineItem}>
             <View style={styles.timelineLeft}>
@@ -140,7 +141,7 @@ const DeliveryDetailsScreen = ({ route }: any) => {
 
         {!isAssigned && !isCompleted && (
           <View style={styles.assignSection}>
-            <div style={styles.sectionHeaderRow}>
+            <View style={styles.sectionHeaderRow}>
               <View style={styles.rowLead}>
                 <UserPlus size={20} color={theme.colors.primary} />
                 <Text style={styles.sectionTitleSub}>
@@ -150,7 +151,7 @@ const DeliveryDetailsScreen = ({ route }: any) => {
               <Text style={styles.courierCount}>
                 {availableCouriers?.length || 0} {t('deliveries.available')}
               </Text>
-            </div>
+            </View>
 
             {isLoading ? (
               <ActivityIndicator
