@@ -98,11 +98,19 @@ export const useNotifications = (appType: AppType) => {
 
   const handleNotificationNavigation = (remoteMessage: RemoteMessage) => {
     console.log('Navigating based on notification:', remoteMessage);
-    const { type } = remoteMessage.data || {};
+    const { type, deliveryId } = remoteMessage.data || {};
 
-    if (type === 'ORDER_READY' || type === 'DELIVERY_UPDATE') {
+    if (type === 'ORDER_READY') {
+      if (navigationRef.isReady() && deliveryId) {
+        navigationRef.navigate('DeliveriesTab' as never, {
+          screen: 'DeliveryDetails',
+          params: { deliveryId }
+        } as never);
+      } else if (navigationRef.isReady()) {
+        navigationRef.navigate('DeliveriesTab' as never);
+      }
+    } else if (type === 'DELIVERY_UPDATE') {
       if (navigationRef.isReady()) {
-        // For Delivery Manager app, we might navigate to Deliveries tab
         navigationRef.navigate('Main' as never);
       }
     }
