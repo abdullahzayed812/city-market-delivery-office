@@ -1,14 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthService } from '../services/api/authService';
-import { UserRole } from '@city-market/shared';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: any | null;
   token: string | null;
-  signIn: (credentials: any) => Promise<void>;
+  signIn: (user: any, accessToken: string, refreshToken: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 

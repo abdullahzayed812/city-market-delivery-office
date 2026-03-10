@@ -46,9 +46,9 @@ const ProfileScreen = () => {
       disabled={!onPress}
     >
       <View style={styles.menuItemLeft}>
-        <div style={[styles.iconBadge, { backgroundColor: color + '10' }]}>
+        <View style={[styles.iconBadge, { backgroundColor: color + '10' }]}>
           <Icon size={20} color={color} />
-        </div>
+        </View>
         <Text style={styles.menuLabel}>{label}</Text>
       </View>
       <View style={styles.menuItemRight}>
@@ -56,7 +56,7 @@ const ProfileScreen = () => {
         {onPress && (
           <ChevronRight
             size={18}
-            color={theme.colors.textLight}
+            color={theme.colors.textMuted}
             style={isRTL && { transform: [{ rotate: '180deg' }] }}
           />
         )}
@@ -205,12 +205,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginStart: 6,
   },
-  emailText: { fontSize: 14, color: theme.colors.textLight, marginTop: 8 },
+  emailText: { fontSize: 14, color: theme.colors.textMuted, marginTop: 8 },
   section: { marginTop: 25, paddingHorizontal: theme.spacing.lg },
   sectionTitle: {
     fontSize: 14,
     fontWeight: theme.typography.weights.bold,
-    color: theme.colors.textLight,
+    color: theme.colors.textMuted,
     textTransform: 'uppercase',
     marginBottom: 10,
     marginStart: 4,
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   },
   versionText: {
     textAlign: 'center',
-    color: theme.colors.textLight,
+    color: theme.colors.textMuted,
     fontSize: 12,
     marginTop: 30,
     marginBottom: 40,

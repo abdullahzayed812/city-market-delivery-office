@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Platform, PermissionsAndroid } from 'react-native';
 import {
   getMessaging,
-  RemoteMessage,
-  onMessage,
-  onTokenRefresh,
+  RemoteMessage, 
+  onMessage, 
+  onTokenRefresh, 
   onNotificationOpenedApp,
   requestPermission,
   getToken as getFcmToken,
@@ -17,7 +17,7 @@ import Toast from 'react-native-toast-message';
 import { AppType, PlatformType } from '@city-market/shared';
 import { navigationRef } from '../navigation/RootNavigator';
 
-// Pass the app type here (e.g., 'CUSTOMER', 'COURIER', 'VENDOR', 'DELIVERY_MANAGER')
+// Pass the app type here (e.g., 'CUSTOMER', 'COURIER')
 export const useNotifications = (appType: AppType) => {
   const { user, isAuthenticated } = useAuth();
   const messaging = useMemo(() => getMessaging(), []);
@@ -28,7 +28,7 @@ export const useNotifications = (appType: AppType) => {
       isRegistered.current = true;
       setupNotifications();
     }
-
+    
     // Reset registration flag if user logs out
     if (!isAuthenticated) {
       isRegistered.current = false;
@@ -98,20 +98,14 @@ export const useNotifications = (appType: AppType) => {
 
   const handleNotificationNavigation = (remoteMessage: RemoteMessage) => {
     console.log('Navigating based on notification:', remoteMessage);
-    const { type, deliveryId } = remoteMessage.data || {};
-
-    if (type === 'ORDER_READY') {
-      if (navigationRef.isReady() && deliveryId) {
-        navigationRef.navigate('DeliveriesTab' as never, {
+    const { type, deliveryId } = (remoteMessage.data || {}) as any;
+    
+    if (type === 'NEW_DELIVERY' || type === 'DELIVERY_UPDATE') {
+      if (navigationRef.isReady()) {
+        (navigationRef.navigate as any)('DeliveriesTab', {
           screen: 'DeliveryDetails',
           params: { deliveryId }
-        } as never);
-      } else if (navigationRef.isReady()) {
-        navigationRef.navigate('DeliveriesTab' as never);
-      }
-    } else if (type === 'DELIVERY_UPDATE') {
-      if (navigationRef.isReady()) {
-        navigationRef.navigate('Main' as never);
+        });
       }
     }
   };
