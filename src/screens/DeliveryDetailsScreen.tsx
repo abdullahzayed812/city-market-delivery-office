@@ -127,16 +127,44 @@ const DeliveryDetailsScreen = ({ route }: any) => {
                 fill={theme.colors.success}
               />
             </View>
-            <View style={styles.timelineRight}>
-              <View style={styles.pointHeader}>
-                <User size={14} color={theme.colors.textMuted} />
-                <Text style={styles.pointLabel}>
-                  {t('deliveries.delivery_destination')}
+          </View>
+        </View>
+
+        <View style={styles.itemsCard}>
+          <Text style={styles.sectionTitle}>
+            {t('deliveries.order_items')}
+          </Text>
+          {delivery.vendorOrders?.map((vo: any) => (
+            <View key={vo.id} style={styles.vendorOrderSection}>
+              <View style={styles.vendorHeader}>
+                <Store size={16} color={theme.colors.primary} />
+                <Text style={styles.vendorName}>
+                  {vo.vendorName || t('common.vendor')}
                 </Text>
               </View>
-              <Text style={styles.addressText}>{delivery.deliveryAddress}</Text>
+              {vo.items?.map((item: any) => (
+                <View key={item.id} style={styles.itemRow}>
+                  <View style={styles.itemInfo}>
+                    <Text style={styles.itemName}>{item.productName}</Text>
+                    <Text style={styles.itemQuantity}>
+                      {item.quantity ? `x${item.quantity}` : ''}
+                      {item.actualWeightGrams
+                        ? ` (${(item.actualWeightGrams / 1000).toFixed(2)} kg)`
+                        : item.requestedWeightGrams
+                          ? ` (${(item.requestedWeightGrams / 1000).toFixed(2)} kg)`
+                          : ''}
+                    </Text>
+                  </View>
+                  <Text style={styles.itemPrice}>
+                    {item.totalPrice.toFixed(2)} {t('common.currency')}
+                  </Text>
+                </View>
+              ))}
             </View>
-          </View>
+          ))}
+          {(!delivery.vendorOrders || delivery.vendorOrders.length === 0) && (
+            <Text style={styles.emptyMsg}>{t('deliveries.no_items_found')}</Text>
+          )}
         </View>
 
         {!isAssigned && !isCompleted && (
@@ -436,6 +464,59 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  itemsCard: {
+    backgroundColor: theme.colors.surface,
+    margin: theme.spacing.lg,
+    marginTop: 0,
+    padding: theme.spacing.lg,
+    borderRadius: theme.radius.xl,
+    ...theme.shadows.card,
+  },
+  vendorOrderSection: {
+    marginBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+    paddingBottom: 12,
+  },
+  vendorHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    backgroundColor: theme.colors.background,
+    padding: 8,
+    borderRadius: 8,
+  },
+  vendorName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: theme.colors.secondary,
+    marginStart: 8,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+  },
+  itemInfo: {
+    flex: 1,
+  },
+  itemName: {
+    fontSize: 14,
+    color: theme.colors.text,
+    fontWeight: '500',
+  },
+  itemQuantity: {
+    fontSize: 12,
+    color: theme.colors.textMuted,
+    marginTop: 2,
+  },
+  itemPrice: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: theme.colors.secondary,
   },
 });
 
