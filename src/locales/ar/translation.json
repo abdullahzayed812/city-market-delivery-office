@@ -14,7 +14,8 @@
     "delivery_manager": "مدير العمليات",
     "not_found": "غير موجود",
     "start": "توزيع",
-    "call": "اتصال بالسائق"
+    "call": "اتصال بالسائق",
+    "currency": "ج.م"
   },
   "auth": {
     "login_title": "بوابة التوزيع",
@@ -72,7 +73,13 @@
     "route_details": "المسار اللوجستي",
     "available": "جاهز",
     "assign": "تعيين سائق",
-    "out_for_delivery": "الموظف في الطريق"
+    "out_for_delivery": "الموظف في الطريق",
+    "delivery_address": "عنوان التوصيل",
+    "order_items": "عناصر الطلب",
+    "assign_courier_title": "تعيين سائق",
+    "assign_courier_desc": "هل أنت متأكد من رغبتك في تعيين هذا السائق للطلب؟ سيتم إخطار السائق على الفور.",
+    "assign_warning": "سيتم إخطار السائق على الفور.",
+    "confirm_assignment": "تأكيد التعيين"
   },
   "earnings": {
     "title": "الإيرادات",

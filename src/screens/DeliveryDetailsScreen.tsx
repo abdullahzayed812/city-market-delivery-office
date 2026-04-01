@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Linking,
+  Modal,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -16,6 +17,10 @@ import {
   User,
   UserPlus,
   Circle,
+  AlertTriangle,
+  X,
+  Star,
+  Truck,
 } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../theme';
@@ -27,8 +32,26 @@ const DeliveryDetailsScreen = ({ route }: any) => {
   const { deliveryId } = route.params;
   const { t } = useTranslation();
 
+  const [assignModalVisible, setAssignModalVisible] = useState(false);
+  const [selectedCourier, setSelectedCourier] = useState<any>(null);
+
   const { delivery, availableCouriers, isLoading, assignCourier, isAssigning } =
     useDeliveryDetails(deliveryId);
+
+  console.log(delivery);
+
+  const handleOpenAssignModal = (courier: any) => {
+    setSelectedCourier(courier);
+    setAssignModalVisible(true);
+  };
+
+  const confirmAssign = () => {
+    if (selectedCourier) {
+      assignCourier(selectedCourier.id);
+      setAssignModalVisible(false);
+      setSelectedCourier(null);
+    }
+  };
 
   if (!delivery && isLoading) {
     return (
@@ -108,13 +131,12 @@ const DeliveryDetailsScreen = ({ route }: any) => {
               <View style={styles.timelineRight}>
                 <View style={styles.pointHeader}>
                   <Store size={14} color={theme.colors.textMuted} />
-                  <Text style={styles.pointLabel}>
-                    {t('deliveries.pickup_location')} {delivery.pickupLocations.length > 1 ? `#${index + 1}` : ''}
+                  <Text style={pointLabelStyle(theme)}>
+                    {t('deliveries.pickup_location')}{' '}
+                    {delivery.pickupLocations.length > 1 ? `#${index + 1}` : ''}
                   </Text>
                 </View>
-                <Text style={styles.addressText}>
-                  {loc.address}
-                </Text>
+                <Text style={styles.addressText}>{loc.address}</Text>
               </View>
             </View>
           ))}
@@ -127,13 +149,20 @@ const DeliveryDetailsScreen = ({ route }: any) => {
                 fill={theme.colors.success}
               />
             </View>
+            <View>
+              <View style={styles.pointHeader}>
+                <MapPin size={14} color={theme.colors.textMuted} />
+                <Text style={pointLabelStyle(theme)}>
+                  {t('deliveries.delivery_address')}
+                </Text>
+              </View>
+              <Text style={styles.addressText}>{delivery.deliveryAddress}</Text>
+            </View>
           </View>
         </View>
 
         <View style={styles.itemsCard}>
-          <Text style={styles.sectionTitle}>
-            {t('deliveries.order_items')}
-          </Text>
+          <Text style={styles.sectionTitle}>{t('deliveries.order_items')}</Text>
           {delivery.vendorOrders?.map((vo: any) => (
             <View key={vo.id} style={styles.vendorOrderSection}>
               <View style={styles.vendorHeader}>
@@ -151,8 +180,10 @@ const DeliveryDetailsScreen = ({ route }: any) => {
                       {item.actualWeightGrams
                         ? ` (${(item.actualWeightGrams / 1000).toFixed(2)} kg)`
                         : item.requestedWeightGrams
-                          ? ` (${(item.requestedWeightGrams / 1000).toFixed(2)} kg)`
-                          : ''}
+                        ? ` (${(item.requestedWeightGrams / 1000).toFixed(
+                            2,
+                          )} kg)`
+                        : ''}
                     </Text>
                   </View>
                   <Text style={styles.itemPrice}>
@@ -163,7 +194,9 @@ const DeliveryDetailsScreen = ({ route }: any) => {
             </View>
           ))}
           {(!delivery.vendorOrders || delivery.vendorOrders.length === 0) && (
-            <Text style={styles.emptyMsg}>{t('deliveries.no_items_found')}</Text>
+            <Text style={styles.emptyMsg}>
+              {t('deliveries.no_items_found')}
+            </Text>
           )}
         </View>
 
@@ -192,7 +225,7 @@ const DeliveryDetailsScreen = ({ route }: any) => {
                   <TouchableOpacity
                     key={courier.id}
                     style={styles.courierItem}
-                    onPress={() => assignCourier(courier.id)}
+                    onPress={() => handleOpenAssignModal(courier)}
                     disabled={isAssigning}
                   >
                     <View style={styles.courierInfo}>
@@ -254,9 +287,6 @@ const DeliveryDetailsScreen = ({ route }: any) => {
                   <Text style={styles.courierName}>
                     {delivery.courierName || t('deliveries.assigned')}
                   </Text>
-                  {/* <Text style={styles.courierVehicle}>
-                    {delivery.courierPhone || t('deliveries.out_for_delivery')}
-                  </Text> */}
                 </View>
               </View>
               <TouchableOpacity
@@ -272,9 +302,114 @@ const DeliveryDetailsScreen = ({ route }: any) => {
           </View>
         )}
       </ScrollView>
+
+      <Modal
+        visible={assignModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setAssignModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <View style={styles.alertIconBox}>
+                <UserPlus size={24} color={theme.colors.primary} />
+              </View>
+              <Text style={styles.modalTitle}>
+                {t('deliveries.assign_courier_title', 'Assign Courier')}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setAssignModalVisible(false)}
+                style={styles.closeBtn}
+              >
+                <X size={20} color={theme.colors.textLight} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalBody}>
+              <Text style={styles.modalDesc}>
+                {t(
+                  'deliveries.assign_courier_desc',
+                  'Are you sure you want to assign this courier to the delivery?',
+                )}
+              </Text>
+
+              {selectedCourier && (
+                <View style={styles.selectedCourierCard}>
+                  <View style={styles.largeAvatar}>
+                    <Text style={styles.largeAvatarText}>
+                      {selectedCourier.fullName?.charAt(0)}
+                    </Text>
+                  </View>
+                  <Text style={styles.selectedCourierName}>
+                    {selectedCourier.fullName}
+                  </Text>
+
+                  <View style={styles.courierDetailsGrid}>
+                    <View style={styles.detailItem}>
+                      <Truck size={16} color={theme.colors.textMuted} />
+                      <Text style={styles.detailText}>
+                        {selectedCourier.vehicleType}
+                      </Text>
+                    </View>
+                    <View style={styles.detailItem}>
+                      <Star size={16} color={theme.colors.warning} />
+                      <Text style={styles.detailText}>4.8 Rating</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              <View style={styles.warningInfo}>
+                <AlertTriangle size={16} color={theme.colors.warning} />
+                <Text style={styles.warningText}>
+                  {t(
+                    'deliveries.assign_warning',
+                    'The courier will be notified immediately.',
+                  )}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
+                onPress={() => setAssignModalVisible(false)}
+                disabled={isAssigning}
+              >
+                <Text style={styles.modalCancelBtnText}>
+                  {t('common.cancel', 'Cancel')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalConfirmBtn}
+                onPress={confirmAssign}
+                disabled={isAssigning}
+              >
+                {isAssigning ? (
+                  <ActivityIndicator color={theme.colors.white} size="small" />
+                ) : (
+                  <Text style={styles.modalConfirmBtnText}>
+                    {t('deliveries.confirm_assignment', 'Confirm')}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
+
+// Helper for dynamic pointLabel style if needed, or just keep it in styles
+const pointLabelStyle = (theme: any) => ({
+  fontSize: 12,
+  color: theme.colors.textMuted,
+  marginStart: 6,
+  textTransform: 'uppercase' as const,
+  letterSpacing: 0.5,
+});
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
@@ -353,13 +488,6 @@ const styles = StyleSheet.create({
   },
   timelineRight: { flex: 1, paddingBottom: 25, marginStart: 10 },
   pointHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-  pointLabel: {
-    fontSize: 12,
-    color: theme.colors.textMuted,
-    marginStart: 6,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
   addressText: {
     fontSize: 15,
     color: theme.colors.secondary,
@@ -517,6 +645,144 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: theme.colors.secondary,
+  },
+
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: 28,
+    width: '100%',
+    overflow: 'hidden',
+    ...theme.shadows.medium,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  alertIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: theme.colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.secondary,
+    flex: 1,
+  },
+  closeBtn: {
+    padding: 4,
+  },
+  modalBody: {
+    padding: 24,
+  },
+  modalDesc: {
+    fontSize: 15,
+    color: theme.colors.textMuted,
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  selectedCourierCard: {
+    backgroundColor: theme.colors.background,
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  largeAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 22,
+    backgroundColor: theme.colors.secondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  largeAvatarText: {
+    color: theme.colors.white,
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  selectedCourierName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.secondary,
+    marginBottom: 8,
+  },
+  courierDetailsGrid: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  detailText: {
+    fontSize: 13,
+    color: theme.colors.textMuted,
+  },
+  warningInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fffbeb',
+    padding: 12,
+    borderRadius: 12,
+    gap: 8,
+  },
+  warningText: {
+    fontSize: 13,
+    color: '#92400e',
+    flex: 1,
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    padding: 24,
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    height: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  modalCancelBtnText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: theme.colors.textMuted,
+  },
+  modalConfirmBtn: {
+    flex: 2,
+    height: 52,
+    backgroundColor: theme.colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 16,
+    ...theme.shadows.soft,
+  },
+  modalConfirmBtnText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: theme.colors.white,
   },
 });
 

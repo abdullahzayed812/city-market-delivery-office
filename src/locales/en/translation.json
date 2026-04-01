@@ -14,7 +14,8 @@
     "delivery_manager": "Operations Manager",
     "not_found": "Not Found",
     "start": "Dispatch",
-    "call": "Contact Driver"
+    "call": "Contact Driver",
+    "currency": "EGP"
   },
   "auth": {
     "login_title": "Dispatch Portal",
@@ -72,7 +73,13 @@
     "route_details": "Logistics Route",
     "available": "Ready",
     "assign": "Dispatch Driver",
-    "out_for_delivery": "Personnel in transit"
+    "out_for_delivery": "Personnel in transit",
+    "delivery_address": "Delivery Address",
+    "order_items": "Order Items",
+    "assign_courier_title": "Assign Courier",
+    "assign_courier_desc": "Are you sure you want to assign this courier to the delivery? The courier will be notified immediately.",
+    "assign_warning": "The courier will be notified immediately.",
+    "confirm_assignment": "Confirm Assignment"
   },
   "earnings": {
     "title": "Revenue",
