@@ -38,8 +38,6 @@ const DeliveryDetailsScreen = ({ route }: any) => {
   const { delivery, availableCouriers, isLoading, assignCourier, isAssigning } =
     useDeliveryDetails(deliveryId);
 
-  console.log(delivery);
-
   const handleOpenAssignModal = (courier: any) => {
     setSelectedCourier(courier);
     setAssignModalVisible(true);
