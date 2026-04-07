@@ -79,7 +79,8 @@
     "assign_courier_title": "Assign Courier",
     "assign_courier_desc": "Are you sure you want to assign this courier to the delivery? The courier will be notified immediately.",
     "assign_warning": "The courier will be notified immediately.",
-    "confirm_assignment": "Confirm Assignment"
+    "confirm_assignment": "Confirm Assignment",
+    "total_price": "Total price"
   },
   "earnings": {
     "title": "Revenue",

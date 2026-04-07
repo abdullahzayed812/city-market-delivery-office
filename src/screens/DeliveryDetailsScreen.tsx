@@ -14,7 +14,6 @@ import {
   Package,
   MapPin,
   Store,
-  User,
   UserPlus,
   Circle,
   AlertTriangle,
@@ -37,6 +36,16 @@ const DeliveryDetailsScreen = ({ route }: any) => {
 
   const { delivery, availableCouriers, isLoading, assignCourier, isAssigning } =
     useDeliveryDetails(deliveryId);
+
+  const totalPrice =
+    delivery?.vendorOrders?.reduce((total: number, vo: any) => {
+      return (
+        total +
+        (vo.items?.reduce((sum: number, item: any) => {
+          return sum + (item.totalPrice || 0);
+        }, 0) || 0)
+      );
+    }, 0) || 0;
 
   const handleOpenAssignModal = (courier: any) => {
     setSelectedCourier(courier);
@@ -191,6 +200,14 @@ const DeliveryDetailsScreen = ({ route }: any) => {
               ))}
             </View>
           ))}
+
+          <View style={{ marginTop: 12 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
+              {t('deliveries.total_price')}: {totalPrice.toFixed(2)}{' '}
+              {t('common.currency')}
+            </Text>
+          </View>
+
           {(!delivery.vendorOrders || delivery.vendorOrders.length === 0) && (
             <Text style={styles.emptyMsg}>
               {t('deliveries.no_items_found')}

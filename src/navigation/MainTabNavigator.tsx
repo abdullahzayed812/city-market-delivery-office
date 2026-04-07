@@ -33,6 +33,7 @@ const MainTabNavigator = () => {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.textMuted,
         tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold' },
+        tabBarStyle: { height: 70, paddingTop: 8 },
         headerStyle: { backgroundColor: theme.colors.white },
         headerTitleStyle: { fontWeight: 'bold', color: theme.colors.primary },
       }}

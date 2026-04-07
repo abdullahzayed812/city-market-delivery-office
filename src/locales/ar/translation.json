@@ -79,7 +79,8 @@
     "assign_courier_title": "تعيين سائق",
     "assign_courier_desc": "هل أنت متأكد من رغبتك في تعيين هذا السائق للطلب؟ سيتم إخطار السائق على الفور.",
     "assign_warning": "سيتم إخطار السائق على الفور.",
-    "confirm_assignment": "تأكيد التعيين"
+    "confirm_assignment": "تأكيد التعيين",
+    "total_price": "السعر الإجمالي"
   },
   "earnings": {
     "title": "الإيرادات",
