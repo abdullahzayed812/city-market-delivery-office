@@ -28,12 +28,14 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('password123');
   const [loading, setLoading] = useState(false);
   const [selectedServer, setSelectedServer] = useState(SERVERS.PC);
+  const [customIP, setCustomIP] = useState(SERVERS.PC);
   const isRTL = i18n.language === 'ar';
 
   useEffect(() => {
     const loadServer = async () => {
       const ip = await getServerIP();
       setSelectedServer(ip);
+      setCustomIP(ip);
     };
     loadServer();
   }, []);
@@ -41,6 +43,12 @@ const LoginScreen = () => {
   const handleServerChange = async (ip: string) => {
     await setServerIP(ip);
     setSelectedServer(ip);
+    setCustomIP(ip);
+  };
+
+  const handleApplyCustomIP = () => {
+    const trimmed = customIP.trim();
+    if (trimmed) handleServerChange(trimmed);
   };
 
   const handleLogin = async () => {
@@ -105,17 +113,34 @@ const LoginScreen = () => {
                 <Text style={styles.serverTitle}>Server Environment</Text>
               </View>
               <View style={styles.serverButtons}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.serverBtn, selectedServer === SERVERS.PC && styles.serverBtnActive]}
                   onPress={() => handleServerChange(SERVERS.PC)}
                 >
                   <Text style={[styles.serverBtnText, selectedServer === SERVERS.PC && styles.serverBtnTextActive]}>PC</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.serverBtn, selectedServer === SERVERS.LAPTOP && styles.serverBtnActive]}
                   onPress={() => handleServerChange(SERVERS.LAPTOP)}
                 >
                   <Text style={[styles.serverBtnText, selectedServer === SERVERS.LAPTOP && styles.serverBtnTextActive]}>Laptop</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.customIPRow}>
+                <TextInput
+                  style={styles.customIPInput}
+                  value={customIP}
+                  onChangeText={setCustomIP}
+                  placeholder="192.168.0.x"
+                  placeholderTextColor={theme.colors.textMuted}
+                  keyboardType="decimal-pad"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onSubmitEditing={handleApplyCustomIP}
+                  returnKeyType="done"
+                />
+                <TouchableOpacity style={styles.customIPApply} onPress={handleApplyCustomIP}>
+                  <Text style={styles.customIPApplyText}>Apply</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -279,6 +304,36 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
   },
   serverBtnTextActive: {
+    color: theme.colors.white,
+  },
+  customIPRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    gap: 8,
+  },
+  customIPInput: {
+    flex: 1,
+    height: 38,
+    backgroundColor: theme.colors.surface,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    paddingHorizontal: 12,
+    fontSize: 14,
+    color: theme.colors.secondary,
+  },
+  customIPApply: {
+    height: 38,
+    paddingHorizontal: 14,
+    backgroundColor: theme.colors.primary,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  customIPApplyText: {
+    fontSize: 13,
+    fontWeight: '700',
     color: theme.colors.white,
   },
   form: { width: '100%' },

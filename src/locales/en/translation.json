@@ -105,5 +105,51 @@
     "app_settings": "System Settings",
     "support_help": "Admin Support",
     "version": "Build v{{version}}"
+  },
+  "terms": {
+    "title": "Terms and Conditions",
+    "lastUpdated": "Last updated: April 2025",
+    "intro": "Welcome to CityMarket Delivery. By using this app, you agree to the following terms and conditions governing delivery operations. Please read them carefully before proceeding.",
+    "sections": [
+      {
+        "heading": "Acceptance of Terms",
+        "body": "By accessing and using the CityMarket Delivery app, you accept and agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use the app."
+      },
+      {
+        "heading": "Role and Responsibilities",
+        "body": "As a delivery agent, you are responsible for collecting orders from vendors and delivering them to customers safely and on time. You must verify order details before pickup and obtain customer confirmation upon delivery."
+      },
+      {
+        "heading": "Service Standards",
+        "body": "You agree to maintain a professional attitude, handle all deliveries with care, and communicate promptly with customers and support. Any damage to goods due to negligence may be subject to review."
+      },
+      {
+        "heading": "Earnings and Payments",
+        "body": "Your earnings are based on completed deliveries and any applicable incentives. Payment schedules are outlined in your employment or partnership agreement. Dispute resolution for payment issues must be submitted within 7 days."
+      },
+      {
+        "heading": "Vehicle and Safety",
+        "body": "You are responsible for maintaining your vehicle in safe, road-worthy condition and complying with all traffic laws. CityMarket is not liable for accidents or vehicle-related incidents during deliveries."
+      },
+      {
+        "heading": "Data and Privacy",
+        "body": "Your personal and location data may be collected and used to facilitate delivery operations, improve service quality, and comply with legal requirements. We do not share your data with unauthorized third parties."
+      },
+      {
+        "heading": "Account Termination",
+        "body": "Violations of these terms, repeated poor performance, or fraudulent activity may result in account suspension or termination. You may also request account deactivation at any time."
+      },
+      {
+        "heading": "Changes to Terms",
+        "body": "CityMarket reserves the right to update these Terms and Conditions. Continued use of the app after changes are posted constitutes acceptance of the updated terms."
+      }
+    ],
+    "closing": "By tapping \"Accept & Continue\", you confirm that you have read, understood, and agree to these Terms and Conditions.",
+    "accept": "Accept & Continue",
+    "decline": "Decline",
+    "declineTitle": "Decline Terms",
+    "declineMessage": "You must accept the Terms and Conditions to use CityMarket Delivery. If you decline, the app will close.",
+    "exitApp": "Exit App",
+    "scrollHint": "Please scroll down to read all terms before accepting"
   }
 }

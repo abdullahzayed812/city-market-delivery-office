@@ -37,6 +37,8 @@ const DeliveryDetailsScreen = ({ route }: any) => {
   const { delivery, availableCouriers, isLoading, assignCourier, isAssigning } =
     useDeliveryDetails(deliveryId);
 
+  console.log({ delivery });
+
   const totalPrice =
     delivery?.vendorOrders?.reduce((total: number, vo: any) => {
       return (

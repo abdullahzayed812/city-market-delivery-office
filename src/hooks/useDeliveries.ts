@@ -27,9 +27,10 @@ export const useDeliveries = () => {
     };
 
     const events = [
-      EventType.ORDER_READY,
+      EventType.DELIVERY_CREATED,
       EventType.COURIER_ASSIGNED,
       EventType.ORDER_PICKED_UP,
+      EventType.ORDER_ON_THE_WAY,
       EventType.ORDER_DELIVERED,
     ];
 
