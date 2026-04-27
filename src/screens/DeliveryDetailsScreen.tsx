@@ -34,7 +34,7 @@ const DeliveryDetailsScreen = ({ route }: any) => {
   const [assignModalVisible, setAssignModalVisible] = useState(false);
   const [selectedCourier, setSelectedCourier] = useState<any>(null);
 
-  const { delivery, availableCouriers, isLoading, assignCourier, isAssigning } =
+  const { delivery, availableCouriers, myOffice, isLoading, acceptDelivery, isAccepting, assignCourier, isAssigning } =
     useDeliveryDetails(deliveryId);
 
   console.log({ delivery });
@@ -85,6 +85,8 @@ const DeliveryDetailsScreen = ({ route }: any) => {
   }
 
   const isCompleted = delivery.status === DeliveryStatus.DELIVERED;
+  const isPending = delivery.status === DeliveryStatus.PENDING;
+  const isAccepted = delivery.status === DeliveryStatus.ACCEPTED;
   const isAssigned = !!delivery.courierId;
 
   return (
@@ -217,7 +219,25 @@ const DeliveryDetailsScreen = ({ route }: any) => {
           )}
         </View>
 
-        {!isAssigned && !isCompleted && (
+        {isPending && (
+          <View style={styles.assignSection}>
+            <TouchableOpacity
+              style={styles.acceptBtn}
+              onPress={() => acceptDelivery()}
+              disabled={isAccepting}
+            >
+              {isAccepting ? (
+                <ActivityIndicator color={theme.colors.white} size="small" />
+              ) : (
+                <Text style={styles.acceptBtnText}>
+                  {t('deliveries.accept', 'Accept Delivery')}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {isAccepted && !isAssigned && myOffice && delivery.deliveryOfficeId === myOffice.id && (
           <View style={styles.assignSection}>
             <View style={styles.sectionHeaderRow}>
               <View style={styles.rowLead}>
@@ -511,7 +531,20 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.weights.medium,
     lineHeight: 22,
   },
-  assignSection: { paddingHorizontal: theme.spacing.lg },
+  assignSection: { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.md },
+  acceptBtn: {
+    backgroundColor: '#0284c7',
+    height: 52,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...theme.shadows.soft,
+  },
+  acceptBtnText: {
+    color: theme.colors.white,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   sectionHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

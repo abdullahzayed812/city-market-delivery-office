@@ -19,6 +19,31 @@ export const useDeliveryDetails = (deliveryId: string) => {
     queryFn: CourierService.getAvailableCouriers,
   });
 
+  const { data: myOffice } = useQuery({
+    queryKey: ['myOffice'],
+    queryFn: DeliveryService.getMyOffice,
+  });
+
+  const acceptMutation = useMutation({
+    mutationFn: () => DeliveryService.acceptDelivery(deliveryId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['delivery', deliveryId] });
+      queryClient.invalidateQueries({ queryKey: ['allDeliveries'] });
+      Toast.show({
+        type: 'success',
+        text1: t('common.success'),
+        text2: t('deliveries.delivery_accepted', 'Delivery accepted'),
+      });
+    },
+    onError: (err: any) => {
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: err?.response?.data?.message || t('deliveries.failed_accept', 'Failed to accept delivery'),
+      });
+    },
+  });
+
   const assignMutation = useMutation({
     mutationFn: (courierId: string) =>
       DeliveryService.assignCourier(deliveryId, { courierId }),
@@ -44,7 +69,10 @@ export const useDeliveryDetails = (deliveryId: string) => {
   return {
     delivery,
     availableCouriers,
+    myOffice,
     isLoading: deliveryLoading || couriersLoading,
+    acceptDelivery: acceptMutation.mutate,
+    isAccepting: acceptMutation.isPending,
     assignCourier: assignMutation.mutate,
     isAssigning: assignMutation.isPending,
   };

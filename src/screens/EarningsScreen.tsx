@@ -1,33 +1,42 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, StatusBar, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, StatusBar } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Wallet, TrendingUp, Calendar, ArrowUpRight, Filter } from 'lucide-react-native';
+import { Wallet, TrendingUp, Calendar, Building2 } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../theme';
-import CustomHeader from '../components/common/CustomHeader';
 import { useEarnings } from '../hooks/useEarnings';
+
+const StatusBadge = ({ status }: { status: string }) => (
+  <View style={[styles.badge, status === 'PAID' ? styles.badgePaid : styles.badgePending]}>
+    <Text style={[styles.badgeText, status === 'PAID' ? styles.badgeTextPaid : styles.badgeTextPending]}>
+      {status}
+    </Text>
+  </View>
+);
 
 const EarningsScreen = () => {
   const { t } = useTranslation();
-  const { completedDeliveries, totalEarnings, isLoading } = useEarnings();
+  const { pendingData, settlements, totalPendingPayout, unsettledDeliveries, isLoading } = useEarnings();
 
-  const renderHistoryItem = ({ item }: any) => (
-    <View style={styles.historyCard}>
-      <View style={styles.historyInfo}>
+  const renderSettlementItem = ({ item }: { item: any }) => (
+    <View style={styles.card}>
+      <View style={styles.cardLeft}>
         <View style={styles.iconCircle}>
-          <TrendingUp size={20} color={theme.colors.success} />
+          <TrendingUp size={18} color={theme.colors.success} />
         </View>
         <View>
-          <Text style={styles.orderText}>Order #{item.customerOrderId?.slice(-6)}</Text>
+          <Text style={styles.cardTitle}>
+            {new Date(item.periodStart).toLocaleDateString()} – {new Date(item.periodEnd).toLocaleDateString()}
+          </Text>
           <View style={styles.dateRow}>
             <Calendar size={12} color={theme.colors.textLight} />
-            <Text style={styles.dateText}>{new Date(item.updatedAt).toLocaleDateString()}</Text>
+            <Text style={styles.dateText}>{item.deliveryCount} {t('earnings.deliveries', 'deliveries')}</Text>
           </View>
         </View>
       </View>
-      <View style={styles.amountContainer}>
-        <Text style={styles.amountText}>+$15.00</Text>
-        <Text style={styles.statusText}>{t('common.success')}</Text>
+      <View style={styles.cardRight}>
+        <Text style={styles.amountText}>EGP {Number(item.netPayout).toLocaleString()}</Text>
+        <StatusBadge status={item.status} />
       </View>
     </View>
   );
@@ -44,43 +53,37 @@ const EarningsScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
-        <View style={styles.earningsHeader}>
+        <View style={styles.header}>
           <View style={styles.headerTop}>
-             <Text style={styles.headerTitle}>{t('earnings.title')}</Text>
-             <TouchableOpacity style={styles.filterBtn}>
-                <Filter size={20} color={theme.colors.white} />
-             </TouchableOpacity>
+            <Building2 size={20} color={theme.colors.white} />
+            <Text style={styles.headerTitle}>{t('earnings.title', 'Earnings')}</Text>
           </View>
-          
-          <View style={styles.balanceContainer}>
-             <Text style={styles.balanceLabel}>{t('earnings.total_balance')}</Text>
-             <View style={styles.balanceRow}>
-                <Text style={styles.currency}>$</Text>
-                <Text style={styles.balanceValue}>{totalEarnings.toFixed(2)}</Text>
-             </View>
-             <View style={styles.growthBadge}>
-                <ArrowUpRight size={14} color={theme.colors.success} />
-                <Text style={styles.growthText}>{t('earnings.weekly_growth')}</Text>
-             </View>
+
+          <View style={styles.statsRow}>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>{t('earnings.pending_payout', 'Pending Payout')}</Text>
+              <Text style={styles.statValue}>EGP {totalPendingPayout.toLocaleString()}</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>{t('earnings.unsettled_deliveries', 'Unsettled')}</Text>
+              <Text style={styles.statValue}>{unsettledDeliveries}</Text>
+            </View>
           </View>
         </View>
 
-        <View style={styles.historySection}>
-          <View style={styles.sectionHeader}>
-             <Text style={styles.sectionTitle}>{t('earnings.payout_history')}</Text>
-             <Text style={styles.historyCount}>{completedDeliveries.length} {t('earnings.transactions')}</Text>
-          </View>
-
+        <View style={styles.body}>
+          <Text style={styles.sectionTitle}>{t('earnings.settlement_history', 'Settlement History')}</Text>
           <FlatList
-            data={completedDeliveries}
-            renderItem={renderHistoryItem}
-            keyExtractor={item => item.id}
+            data={settlements}
+            renderItem={renderSettlementItem}
+            keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Wallet size={64} color={theme.colors.border} />
-                <Text style={styles.emptyText}>{t('earnings.no_earnings_history')}</Text>
+                <Wallet size={56} color={theme.colors.border} />
+                <Text style={styles.emptyText}>{t('earnings.no_earnings_history', 'No settlements yet')}</Text>
               </View>
             }
           />
@@ -94,44 +97,37 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.colors.secondary },
   container: { flex: 1, backgroundColor: theme.colors.background },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  earningsHeader: {
+  header: {
     backgroundColor: theme.colors.secondary,
     padding: theme.spacing.lg,
-    paddingBottom: 60,
+    paddingBottom: 50,
   },
-  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30 },
-  headerTitle: { color: theme.colors.white, fontSize: 20, fontWeight: theme.typography.weights.bold },
-  filterBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' },
-  balanceContainer: { alignItems: 'center' },
-  balanceLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 14, textTransform: 'uppercase', letterSpacing: 1 },
-  balanceRow: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 10 },
-  currency: { color: theme.colors.primary, fontSize: 24, fontWeight: theme.typography.weights.bold, marginTop: 10, marginEnd: 4 },
-  balanceValue: { color: theme.colors.white, fontSize: 56, fontWeight: theme.typography.weights.black },
-  growthBadge: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: 'rgba(34, 197, 94, 0.15)', 
-    paddingHorizontal: 12, 
-    paddingVertical: 6, 
-    borderRadius: 20,
-    marginTop: 15
+  headerTop: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 24 },
+  headerTitle: { color: theme.colors.white, fontSize: 20, fontWeight: 'bold' },
+  statsRow: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 16,
+    padding: 16,
   },
-  growthText: { color: theme.colors.success, fontSize: 12, fontWeight: 'bold', marginStart: 4 },
-  historySection: {
+  statCard: { flex: 1, alignItems: 'center' },
+  statDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginHorizontal: 12 },
+  statLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 },
+  statValue: { color: theme.colors.white, fontSize: 22, fontWeight: 'bold', marginTop: 4 },
+  body: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    marginTop: -30,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    marginTop: -24,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     paddingHorizontal: theme.spacing.lg,
+    paddingTop: 24,
   },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 25 },
-  sectionTitle: { fontSize: 18, fontWeight: theme.typography.weights.bold, color: theme.colors.secondary },
-  historyCount: { fontSize: 12, color: theme.colors.textMuted },
-  listContent: { paddingBottom: 20 },
-  historyCard: {
+  sectionTitle: { fontSize: 17, fontWeight: 'bold', color: theme.colors.secondary, marginBottom: 16 },
+  listContent: { paddingBottom: 24 },
+  card: {
     backgroundColor: theme.colors.surface,
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -139,24 +135,29 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     ...theme.shadows.card,
   },
-  historyInfo: { flexDirection: 'row', alignItems: 'center' },
+  cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     backgroundColor: theme.colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginEnd: 12,
   },
-  orderText: { fontSize: 15, fontWeight: theme.typography.weights.bold, color: theme.colors.secondary },
-  dateRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  cardTitle: { fontSize: 14, fontWeight: 'bold', color: theme.colors.secondary },
+  dateRow: { flexDirection: 'row', alignItems: 'center', marginTop: 3 },
   dateText: { fontSize: 12, color: theme.colors.textLight, marginStart: 4 },
-  amountContainer: { alignItems: 'flex-end' },
-  amountText: { fontSize: 16, fontWeight: theme.typography.weights.bold, color: theme.colors.success },
-  statusText: { fontSize: 10, color: theme.colors.textLight, textTransform: 'uppercase', marginTop: 2 },
+  cardRight: { alignItems: 'flex-end' },
+  amountText: { fontSize: 15, fontWeight: 'bold', color: theme.colors.success },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, marginTop: 4 },
+  badgePaid: { backgroundColor: '#d1fae5' },
+  badgePending: { backgroundColor: '#fef3c7' },
+  badgeText: { fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' },
+  badgeTextPaid: { color: '#065f46' },
+  badgeTextPending: { color: '#92400e' },
   emptyContainer: { alignItems: 'center', marginTop: 60 },
-  emptyText: { marginTop: 16, fontSize: 16, fontWeight: 'bold', color: theme.colors.secondary },
+  emptyText: { marginTop: 16, fontSize: 15, color: theme.colors.secondary, fontWeight: 'bold' },
 });
 
 export default EarningsScreen;

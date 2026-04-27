@@ -2,18 +2,21 @@ import { useQuery } from '@tanstack/react-query';
 import { DeliveryService } from '../services/api/deliveryService';
 
 export const useEarnings = () => {
-  // For a manager, we fetch ALL deliveries to see branch revenue
-  const { data: deliveries, isLoading } = useQuery({
-    queryKey: ['allDeliveriesRevenue'],
-    queryFn: DeliveryService.getAllDeliveries,
+  const { data: pendingData, isLoading: isPendingLoading } = useQuery({
+    queryKey: ['officePendingEarnings'],
+    queryFn: DeliveryService.getOfficePendingEarnings,
   });
 
-  const completedDeliveries = deliveries?.filter((d: any) => d.status === 'DELIVERED') || [];
-  const totalEarnings = completedDeliveries.length * 15.00; // Example branch-wide logic
+  const { data: settlements, isLoading: isSettlementsLoading } = useQuery({
+    queryKey: ['officeSettlements'],
+    queryFn: () => DeliveryService.getOfficeSettlements(),
+  });
 
   return {
-    completedDeliveries,
-    totalEarnings,
-    isLoading,
+    pendingData,
+    settlements: settlements || [],
+    totalPendingPayout: pendingData?.netPayout || 0,
+    unsettledDeliveries: pendingData?.unsettledDeliveries || 0,
+    isLoading: isPendingLoading || isSettlementsLoading,
   };
 };

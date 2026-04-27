@@ -30,6 +30,8 @@ const DeliveriesScreen = ({ navigation }: any) => {
     switch (status.toUpperCase()) {
       case 'PENDING':
         return theme.colors.warning;
+      case 'ACCEPTED':
+        return '#0284c7';
       case 'ASSIGNED':
         return theme.colors.info;
       case 'PICKED_UP':
