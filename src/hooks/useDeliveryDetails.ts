@@ -19,13 +19,13 @@ export const useDeliveryDetails = (deliveryId: string) => {
     queryFn: CourierService.getAvailableCouriers,
   });
 
-  const { data: myOffice } = useQuery({
-    queryKey: ['myOffice'],
-    queryFn: DeliveryService.getMyOffice,
-  });
-
   const acceptMutation = useMutation({
     mutationFn: () => DeliveryService.acceptDelivery(deliveryId),
+    onMutate: () => {
+      queryClient.setQueryData(['delivery', deliveryId], (old: any) =>
+        old ? { ...old, status: 'ACCEPTED' } : old
+      );
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['delivery', deliveryId] });
       queryClient.invalidateQueries({ queryKey: ['allDeliveries'] });
@@ -36,6 +36,7 @@ export const useDeliveryDetails = (deliveryId: string) => {
       });
     },
     onError: (err: any) => {
+      queryClient.invalidateQueries({ queryKey: ['delivery', deliveryId] });
       Toast.show({
         type: 'error',
         text1: t('common.error'),
@@ -69,7 +70,6 @@ export const useDeliveryDetails = (deliveryId: string) => {
   return {
     delivery,
     availableCouriers,
-    myOffice,
     isLoading: deliveryLoading || couriersLoading,
     acceptDelivery: acceptMutation.mutate,
     isAccepting: acceptMutation.isPending,

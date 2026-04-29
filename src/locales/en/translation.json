@@ -59,6 +59,8 @@
     "status_on_the_way": "Near Destination",
     "status_delivered": "Fulfilled",
     "status_cancelled": "Voided",
+    "status_failed": "Failed",
+    "status_accepted": "Accepted",
     "assigned": "Staffed",
     "unassigned": "Unstaffed",
     "assign_courier": "Assign Driver",
@@ -80,7 +82,9 @@
     "assign_courier_desc": "Are you sure you want to assign this courier to the delivery? The courier will be notified immediately.",
     "assign_warning": "The courier will be notified immediately.",
     "confirm_assignment": "Confirm Assignment",
-    "total_price": "Total price"
+    "total_price": "Total price",
+    "items_price": "Items price",
+    "delivery_fee": "Delivery fee"
   },
   "earnings": {
     "title": "Revenue",

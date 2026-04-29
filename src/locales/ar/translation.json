@@ -59,6 +59,8 @@
     "status_on_the_way": "بالقرب من الوجهة",
     "status_delivered": "تم التنفيذ",
     "status_cancelled": "ملغي",
+    "status_failed": "فشل",
+    "status_accepted": "تم القبول",
     "assigned": "تم التعيين",
     "unassigned": "غير معين",
     "assign_courier": "تعيين سائق",
@@ -80,7 +82,9 @@
     "assign_courier_desc": "هل أنت متأكد من رغبتك في تعيين هذا السائق للطلب؟ سيتم إخطار السائق على الفور.",
     "assign_warning": "سيتم إخطار السائق على الفور.",
     "confirm_assignment": "تأكيد التعيين",
-    "total_price": "السعر الإجمالي"
+    "total_price": "السعر الإجمالي",
+    "items_price": "سعر المنتجات",
+    "delivery_fee": "رسوم التوصيل"
   },
   "earnings": {
     "title": "الإيرادات",

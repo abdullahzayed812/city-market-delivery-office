@@ -36,9 +36,12 @@ const DeliveriesScreen = ({ navigation }: any) => {
         return theme.colors.info;
       case 'PICKED_UP':
         return theme.colors.primary;
+      case 'ON_THE_WAY':
+        return '#7c3aed';
       case 'DELIVERED':
         return theme.colors.success;
       case 'CANCELLED':
+      case 'FAILED':
         return theme.colors.error;
       default:
         return theme.colors.textMuted;
@@ -124,6 +127,29 @@ const DeliveriesScreen = ({ navigation }: any) => {
                 {item.deliveryAddress}
               </Text>
             </View>
+          </View>
+        </View>
+
+        <View style={styles.pricingSection}>
+          <View style={styles.priceRow}>
+            <Text style={styles.priceLabel}>{t('deliveries.items_price')}</Text>
+            <Text style={styles.priceValue}>
+              {(item.totalPrice ?? 0).toFixed(2)} {t('common.currency')}
+            </Text>
+          </View>
+          {item.deliveryFee != null && (
+            <View style={styles.priceRow}>
+              <Text style={styles.priceLabel}>{t('deliveries.delivery_fee')}</Text>
+              <Text style={styles.priceValue}>
+                {item.deliveryFee.toFixed(2)} {t('common.currency')}
+              </Text>
+            </View>
+          )}
+          <View style={[styles.priceRow, styles.priceTotalRow]}>
+            <Text style={styles.priceTotalLabel}>{t('deliveries.total_price')}</Text>
+            <Text style={styles.priceTotalValue}>
+              {((item.totalPrice ?? 0) + (item.deliveryFee || 0)).toFixed(2)} {t('common.currency')}
+            </Text>
           </View>
         </View>
 
@@ -277,6 +303,43 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontWeight: theme.typography.weights.semibold,
     marginEnd: 4,
+  },
+  pricingSection: {
+    marginBottom: 12,
+    backgroundColor: 'rgba(0,0,0,0.01)',
+    padding: 12,
+    borderRadius: 12,
+    gap: 6,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  priceLabel: {
+    fontSize: 13,
+    color: theme.colors.textMuted,
+  },
+  priceValue: {
+    fontSize: 13,
+    color: theme.colors.secondary,
+    fontWeight: theme.typography.weights.medium,
+  },
+  priceTotalRow: {
+    marginTop: 4,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+  },
+  priceTotalLabel: {
+    fontSize: 14,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.secondary,
+  },
+  priceTotalValue: {
+    fontSize: 14,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.primary,
   },
   emptyContainer: { alignItems: 'center', marginTop: 100 },
   emptyText: { marginTop: 16, fontSize: 16, color: theme.colors.textMuted },

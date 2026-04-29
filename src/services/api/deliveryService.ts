@@ -14,10 +14,6 @@ export const DeliveryService = {
     const response = await apiClient.get<ApiResponse<Delivery>>(`/delivery/deliveries/${id}`);
     return response.data?.data;
   },
-  getMyOffice: async () => {
-    const response = await apiClient.get<ApiResponse<any>>('/delivery/offices/mine');
-    return response.data?.data;
-  },
   acceptDelivery: async (deliveryId: string) => {
     const response = await apiClient.patch<ApiResponse<null>>(`/delivery/deliveries/${deliveryId}/accept`, {});
     return response.data?.data;
@@ -32,8 +28,11 @@ export const DeliveryService = {
     const response = await apiClient.get<ApiResponse<any>>(`/delivery/courier-settlements/courier/${courierId}/pending`);
     return response.data?.data;
   },
-  getCourierSettlements: async (courierId: string) => {
-    const response = await apiClient.get<ApiResponse<any[]>>(`/delivery/courier-settlements?courierId=${courierId}`);
+  getCourierSettlements: async (courierId?: string) => {
+    const url = courierId
+      ? `/delivery/courier-settlements?courierId=${courierId}`
+      : '/delivery/courier-settlements';
+    const response = await apiClient.get<ApiResponse<any[]>>(url);
     return response.data?.data;
   },
   createCourierSettlement: async (body: { courierId: string; periodStart: string; periodEnd: string; notes?: string }) => {

@@ -34,8 +34,15 @@ const DeliveryDetailsScreen = ({ route }: any) => {
   const [assignModalVisible, setAssignModalVisible] = useState(false);
   const [selectedCourier, setSelectedCourier] = useState<any>(null);
 
-  const { delivery, availableCouriers, myOffice, isLoading, acceptDelivery, isAccepting, assignCourier, isAssigning } =
-    useDeliveryDetails(deliveryId);
+  const {
+    delivery,
+    availableCouriers,
+    isLoading,
+    acceptDelivery,
+    isAccepting,
+    assignCourier,
+    isAssigning,
+  } = useDeliveryDetails(deliveryId);
 
   console.log({ delivery });
 
@@ -84,7 +91,7 @@ const DeliveryDetailsScreen = ({ route }: any) => {
     );
   }
 
-  const isCompleted = delivery.status === DeliveryStatus.DELIVERED;
+  // const isCompleted = delivery.status === DeliveryStatus.DELIVERED;
   const isPending = delivery.status === DeliveryStatus.PENDING;
   const isAccepted = delivery.status === DeliveryStatus.ACCEPTED;
   const isAssigned = !!delivery.courierId;
@@ -237,7 +244,7 @@ const DeliveryDetailsScreen = ({ route }: any) => {
           </View>
         )}
 
-        {isAccepted && !isAssigned && myOffice && delivery.deliveryOfficeId === myOffice.id && (
+        {isAccepted && !isAssigned && (
           <View style={styles.assignSection}>
             <View style={styles.sectionHeaderRow}>
               <View style={styles.rowLead}>
@@ -531,7 +538,10 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.weights.medium,
     lineHeight: 22,
   },
-  assignSection: { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.md },
+  assignSection: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.md,
+  },
   acceptBtn: {
     backgroundColor: '#0284c7',
     height: 52,
