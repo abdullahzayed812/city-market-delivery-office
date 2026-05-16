@@ -8,7 +8,7 @@ export const useDeliveryDetails = (deliveryId: string) => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
-  const { data: delivery, isLoading: deliveryLoading } = useQuery({
+  const { data: delivery, isLoading: deliveryLoading, refetch, isRefetching } = useQuery({
     queryKey: ['delivery', deliveryId],
     queryFn: () => DeliveryService.getDeliveryById(deliveryId),
     enabled: !!deliveryId,
@@ -67,13 +67,29 @@ export const useDeliveryDetails = (deliveryId: string) => {
     },
   });
 
+  const cancelMutation = useMutation({
+    mutationFn: (reason: string) => DeliveryService.cancelByManager(deliveryId, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['delivery', deliveryId] });
+      queryClient.invalidateQueries({ queryKey: ['allDeliveries'] });
+      Toast.show({ type: 'success', text1: t('common.success'), text2: t('deliveries.delivery_cancelled') });
+    },
+    onError: () => {
+      Toast.show({ type: 'error', text1: t('common.error'), text2: t('deliveries.failed_cancel') });
+    },
+  });
+
   return {
     delivery,
     availableCouriers,
     isLoading: deliveryLoading || couriersLoading,
+    refetch,
+    isRefetching,
     acceptDelivery: acceptMutation.mutate,
     isAccepting: acceptMutation.isPending,
     assignCourier: assignMutation.mutate,
     isAssigning: assignMutation.isPending,
+    cancelDelivery: cancelMutation.mutate,
+    isCancelling: cancelMutation.isPending,
   };
 };

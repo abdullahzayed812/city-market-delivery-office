@@ -6,6 +6,7 @@ import {
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -23,7 +24,15 @@ import CustomHeader from '../components/common/CustomHeader';
 
 const DeliveriesScreen = ({ navigation }: any) => {
   const { t, i18n } = useTranslation();
-  const { allDeliveries, isLoading } = useDeliveries();
+  const {
+    allDeliveries,
+    isLoading,
+    refetch,
+    isRefetching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useDeliveries();
   const isRTL = i18n.language === 'ar';
 
   const getStatusColor = (status: string) => {
@@ -139,16 +148,21 @@ const DeliveriesScreen = ({ navigation }: any) => {
           </View>
           {item.deliveryFee != null && (
             <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>{t('deliveries.delivery_fee')}</Text>
+              <Text style={styles.priceLabel}>
+                {t('deliveries.delivery_fee')}
+              </Text>
               <Text style={styles.priceValue}>
                 {item.deliveryFee.toFixed(2)} {t('common.currency')}
               </Text>
             </View>
           )}
           <View style={[styles.priceRow, styles.priceTotalRow]}>
-            <Text style={styles.priceTotalLabel}>{t('deliveries.total_price')}</Text>
+            <Text style={styles.priceTotalLabel}>
+              {t('deliveries.total_price')}
+            </Text>
             <Text style={styles.priceTotalValue}>
-              {((item.totalPrice ?? 0) + (item.deliveryFee || 0)).toFixed(2)} {t('common.currency')}
+              {((item.totalPrice ?? 0) + (item.deliveryFee || 0)).toFixed(2)}{' '}
+              {t('common.currency')}
             </Text>
           </View>
         </View>
@@ -196,6 +210,25 @@ const DeliveriesScreen = ({ navigation }: any) => {
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={theme.colors.primary}
+          />
+        }
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+        }}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <ActivityIndicator
+              style={{ paddingVertical: 16 }}
+              color={theme.colors.primary}
+            />
+          ) : null
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Package size={80} color={theme.colors.border} />

@@ -15,7 +15,9 @@
     "not_found": "غير موجود",
     "start": "توزيع",
     "call": "اتصال بالسائق",
-    "currency": "ج.م"
+    "currency": "ج.م",
+    "back": "رجوع",
+    "vendor": "متجر"
   },
   "auth": {
     "login_title": "بوابة التوزيع",
@@ -84,7 +86,21 @@
     "confirm_assignment": "تأكيد التعيين",
     "total_price": "السعر الإجمالي",
     "items_price": "سعر المنتجات",
-    "delivery_fee": "رسوم التوصيل"
+    "delivery_fee": "رسوم التوصيل",
+    "call_customer": "اتصال بالعميل",
+    "call_courier": "اتصال بالمندوب",
+    "contacts": "جهات الاتصال",
+    "no_phone_number": "لا يوجد رقم هاتف متاح لهذا الاتصال",
+    "accept": "قبول التوصيل",
+    "cancel_delivery": "إلغاء التوصيل",
+    "delivery_cancelled": "تم إلغاء التوصيل بنجاح",
+    "failed_cancel": "فشل إلغاء التوصيل",
+    "no_items_found": "لا توجد عناصر",
+    "specify_reason": "تحديد السبب",
+    "enter_reason": "أدخل سبب الإلغاء...",
+    "cancel_reason_not_available": "المندوب غير متاح في المنطقة",
+    "cancel_reason_wrong_address": "عنوان خاطئ أو يتعذر الوصول إليه",
+    "cancel_reason_other": "سبب آخر"
   },
   "earnings": {
     "title": "الإيرادات",

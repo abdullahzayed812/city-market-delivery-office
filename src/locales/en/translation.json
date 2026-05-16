@@ -15,7 +15,9 @@
     "not_found": "Not Found",
     "start": "Dispatch",
     "call": "Contact Driver",
-    "currency": "EGP"
+    "currency": "EGP",
+    "back": "Back",
+    "vendor": "Vendor"
   },
   "auth": {
     "login_title": "Dispatch Portal",
@@ -84,7 +86,21 @@
     "confirm_assignment": "Confirm Assignment",
     "total_price": "Total price",
     "items_price": "Items price",
-    "delivery_fee": "Delivery fee"
+    "delivery_fee": "Delivery fee",
+    "call_customer": "Call Customer",
+    "call_courier": "Call Courier",
+    "contacts": "Contacts",
+    "no_phone_number": "No phone number available for this contact",
+    "accept": "Accept Delivery",
+    "cancel_delivery": "Cancel Delivery",
+    "delivery_cancelled": "Delivery cancelled successfully",
+    "failed_cancel": "Failed to cancel delivery",
+    "no_items_found": "No items found",
+    "specify_reason": "Specify Reason",
+    "enter_reason": "Enter cancellation reason...",
+    "cancel_reason_not_available": "Courier not available in area",
+    "cancel_reason_wrong_address": "Wrong or unreachable address",
+    "cancel_reason_other": "Other reason"
   },
   "earnings": {
     "title": "Revenue",

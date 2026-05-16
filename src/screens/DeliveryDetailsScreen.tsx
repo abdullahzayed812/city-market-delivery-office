@@ -8,7 +8,9 @@ import {
   ActivityIndicator,
   Linking,
   Modal,
+  RefreshControl,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import {
   Package,
@@ -20,6 +22,9 @@ import {
   X,
   Star,
   Truck,
+  XCircle,
+  UserRound,
+  Phone,
 } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../theme';
@@ -27,24 +32,55 @@ import { DeliveryStatus } from '@city-market/shared';
 import CustomHeader from '../components/common/CustomHeader';
 import { useDeliveryDetails } from '../hooks/useDeliveryDetails';
 
+const CANCEL_REASONS = [
+  'cancel_reason_not_available',
+  'cancel_reason_wrong_address',
+  'cancel_reason_other',
+] as const;
+
 const DeliveryDetailsScreen = ({ route }: any) => {
   const { deliveryId } = route.params;
   const { t } = useTranslation();
 
   const [assignModalVisible, setAssignModalVisible] = useState(false);
   const [selectedCourier, setSelectedCourier] = useState<any>(null);
+  const [cancelModalVisible, setCancelModalVisible] = useState(false);
+  const [selectedReason, setSelectedReason] = useState<string | null>(null);
+  const [customReason, setCustomReason] = useState('');
 
   const {
     delivery,
     availableCouriers,
     isLoading,
+    refetch,
+    isRefetching,
     acceptDelivery,
     isAccepting,
     assignCourier,
     isAssigning,
+    cancelDelivery,
+    isCancelling,
   } = useDeliveryDetails(deliveryId);
 
-  console.log({ delivery });
+  const handleCall = (phone: string | undefined) => {
+    if (!phone) {
+      Toast.show({ type: 'error', text1: t('common.error'), text2: t('deliveries.no_phone_number') });
+      return;
+    }
+    Linking.openURL(`tel:${phone}`);
+  };
+
+  const handleConfirmCancel = () => {
+    if (!selectedReason) return;
+    const reason =
+      selectedReason === 'cancel_reason_other'
+        ? customReason.trim() || t(`deliveries.${selectedReason}`)
+        : t(`deliveries.${selectedReason}`);
+    cancelDelivery(reason);
+    setCancelModalVisible(false);
+    setSelectedReason(null);
+    setCustomReason('');
+  };
 
   const totalPrice =
     delivery?.vendorOrders?.reduce((total: number, vo: any) => {
@@ -102,6 +138,13 @@ const DeliveryDetailsScreen = ({ route }: any) => {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={theme.colors.primary}
+          />
+        }
       >
         <View style={styles.headerCard}>
           <View style={styles.mainInfo}>
@@ -130,6 +173,53 @@ const DeliveryDetailsScreen = ({ route }: any) => {
             </View>
           </View>
         </View>
+
+        {!isPending && (
+          <View style={styles.contactsCard}>
+            <Text style={styles.contactsTitle}>{t('deliveries.contacts')}</Text>
+            <View style={styles.contactsRow}>
+              <TouchableOpacity
+                style={styles.contactItem}
+                onPress={() => handleCall(delivery.customerPhone)}
+              >
+                <View
+                  style={[
+                    styles.contactIconBox,
+                    { backgroundColor: '#ECFDF5' },
+                  ]}
+                >
+                  <UserRound size={20} color="#059669" />
+                </View>
+                <Text style={styles.contactLabel}>
+                  {t('deliveries.call_customer')}
+                </Text>
+                <Phone size={14} color="#059669" />
+              </TouchableOpacity>
+
+              {isAccepted && !isAssigned && (
+                <TouchableOpacity
+                  style={[styles.contactItem, styles.contactItemDanger]}
+                  onPress={() => setCancelModalVisible(true)}
+                  disabled={isCancelling}
+                >
+                  <View
+                    style={[
+                      styles.contactIconBox,
+                      { backgroundColor: '#FEF2F2' },
+                    ]}
+                  >
+                    <XCircle size={20} color={theme.colors.error} />
+                  </View>
+                  <Text
+                    style={[styles.contactLabel, { color: theme.colors.error }]}
+                  >
+                    {t('deliveries.cancel_delivery')}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        )}
 
         <View style={styles.timelineCard}>
           <Text style={styles.sectionTitle}>
@@ -226,24 +316,6 @@ const DeliveryDetailsScreen = ({ route }: any) => {
           )}
         </View>
 
-        {isPending && (
-          <View style={styles.assignSection}>
-            <TouchableOpacity
-              style={styles.acceptBtn}
-              onPress={() => acceptDelivery()}
-              disabled={isAccepting}
-            >
-              {isAccepting ? (
-                <ActivityIndicator color={theme.colors.white} size="small" />
-              ) : (
-                <Text style={styles.acceptBtnText}>
-                  {t('deliveries.accept', 'Accept Delivery')}
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        )}
-
         {isAccepted && !isAssigned && (
           <View style={styles.assignSection}>
             <View style={styles.sectionHeaderRow}>
@@ -266,37 +338,60 @@ const DeliveryDetailsScreen = ({ route }: any) => {
             ) : (
               <View style={styles.courierList}>
                 {availableCouriers?.map((courier: any) => (
-                  <TouchableOpacity
-                    key={courier.id}
-                    style={styles.courierItem}
-                    onPress={() => handleOpenAssignModal(courier)}
-                    disabled={isAssigning}
-                  >
-                    <View style={styles.courierInfo}>
-                      <View style={styles.courierAvatar}>
-                        <Text style={styles.avatarText}>
-                          {courier.fullName?.charAt(0)}
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={styles.courierName}>
-                          {courier.fullName}
-                        </Text>
-                        <View style={styles.vehicleRow}>
-                          <Text style={styles.courierVehicle}>
-                            {courier.vehicleType}
+                  <View key={courier.id} style={styles.courierItem}>
+                    <View style={styles.courierItemTop}>
+                      <View style={styles.courierInfo}>
+                        <View style={styles.courierAvatar}>
+                          <Text style={styles.avatarText}>
+                            {courier.fullName?.charAt(0)}
                           </Text>
-                          <View style={styles.dotSeparator} />
-                          <Text style={styles.courierRating}>4.8 ★</Text>
+                        </View>
+                        <View style={styles.courierDetails}>
+                          <Text style={styles.courierName}>
+                            {courier.fullName}
+                          </Text>
+                          <View style={styles.vehicleRow}>
+                            <Truck size={12} color={theme.colors.textMuted} />
+                            <Text style={styles.courierVehicle}>
+                              {courier.vehicleType}
+                            </Text>
+                            {courier.licensePlate && (
+                              <>
+                                <View style={styles.dotSeparator} />
+                                <Text style={styles.courierVehicle}>
+                                  {courier.licensePlate}
+                                </Text>
+                              </>
+                            )}
+                          </View>
+                          {courier.phone && (
+                            <Text style={styles.courierPhone}>
+                              {courier.phone}
+                            </Text>
+                          )}
                         </View>
                       </View>
+                      {courier.phone && (
+                        <TouchableOpacity
+                          style={styles.courierCallBtn}
+                          onPress={() =>
+                            Linking.openURL(`tel:${courier.phone}`)
+                          }
+                        >
+                          <Phone size={16} color="#0284c7" />
+                        </TouchableOpacity>
+                      )}
                     </View>
-                    <View style={styles.assignBtn}>
+                    <TouchableOpacity
+                      style={styles.assignBtn}
+                      onPress={() => handleOpenAssignModal(courier)}
+                      disabled={isAssigning}
+                    >
                       <Text style={styles.assignBtnText}>
                         {t('deliveries.assign')}
                       </Text>
-                    </View>
-                  </TouchableOpacity>
+                    </TouchableOpacity>
+                  </View>
                 ))}
                 {availableCouriers?.length === 0 && (
                   <View style={styles.emptyCourier}>
@@ -333,19 +428,26 @@ const DeliveryDetailsScreen = ({ route }: any) => {
                   </Text>
                 </View>
               </View>
-              <TouchableOpacity
-                style={styles.contactBtn}
-                onPress={() =>
-                  delivery.courierPhone &&
-                  Linking.openURL(`tel:${delivery.courierPhone}`)
-                }
-              >
-                <Text style={styles.contactBtnText}>{t('common.call')}</Text>
-              </TouchableOpacity>
             </View>
           </View>
         )}
       </ScrollView>
+
+      {isPending && (
+        <View style={styles.stickyFooter}>
+          <TouchableOpacity
+            style={styles.acceptBtn}
+            onPress={() => acceptDelivery()}
+            disabled={isAccepting}
+          >
+            {isAccepting ? (
+              <ActivityIndicator color={theme.colors.white} size="small" />
+            ) : (
+              <Text style={styles.acceptBtnText}>{t('deliveries.accept')}</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
 
       <Modal
         visible={assignModalVisible}
@@ -437,6 +539,94 @@ const DeliveryDetailsScreen = ({ route }: any) => {
                     {t('deliveries.confirm_assignment', 'Confirm')}
                   </Text>
                 )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        visible={cancelModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setCancelModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <View style={styles.alertIconBox}>
+                <XCircle size={24} color={theme.colors.error} />
+              </View>
+              <Text style={styles.modalTitle}>
+                {t('deliveries.cancel_delivery')}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setCancelModalVisible(false)}
+                style={styles.closeBtn}
+              >
+                <X size={20} color={theme.colors.textLight} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.modalBody}>
+              {CANCEL_REASONS.map(reason => (
+                <TouchableOpacity
+                  key={reason}
+                  style={[
+                    styles.reasonItem,
+                    selectedReason === reason && styles.reasonItemSelected,
+                  ]}
+                  onPress={() => setSelectedReason(reason)}
+                >
+                  <View
+                    style={[
+                      styles.radioCircle,
+                      selectedReason === reason && styles.radioCircleSelected,
+                    ]}
+                  />
+                  <Text style={styles.reasonText}>
+                    {t(`deliveries.${reason}`)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+              {selectedReason === 'cancel_reason_other' && (
+                <View style={styles.customReasonInput}>
+                  <Text style={styles.customReasonLabel}>
+                    {t('deliveries.specify_reason')}
+                  </Text>
+                  <View style={styles.textInputBox}>
+                    <Text
+                      style={[
+                        styles.textInput,
+                        !customReason && styles.textInputPlaceholder,
+                      ]}
+                      onPress={() => {}}
+                    >
+                      {customReason || t('deliveries.enter_reason')}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
+                onPress={() => setCancelModalVisible(false)}
+              >
+                <Text style={styles.modalCancelBtnText}>
+                  {t('common.back')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.modalConfirmBtn,
+                  { backgroundColor: theme.colors.error },
+                  !selectedReason && { opacity: 0.5 },
+                ]}
+                onPress={handleConfirmCancel}
+                disabled={!selectedReason || isCancelling}
+              >
+                <Text style={styles.modalConfirmBtnText}>
+                  {t('common.confirm')}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -538,9 +728,126 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.weights.medium,
     lineHeight: 22,
   },
-  assignSection: {
+  countdownBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef3c7',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginHorizontal: theme.spacing.lg,
+    marginBottom: 12,
+    gap: 10,
+  },
+  countdownTitle: {
+    fontSize: 12,
+    color: '#92400e',
+    fontWeight: '600' as const,
+    textTransform: 'uppercase' as const,
+  },
+  countdownTimer: {
+    fontSize: 20,
+    fontWeight: '700' as const,
+    color: '#b45309',
+    marginTop: 2,
+  },
+  contactsCard: {
+    backgroundColor: theme.colors.surface,
+    marginHorizontal: theme.spacing.lg,
+    marginBottom: 12,
+    padding: theme.spacing.md,
+    borderRadius: theme.radius.xl,
+    ...theme.shadows.card,
+  },
+  contactsTitle: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: theme.colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 12,
+  },
+  contactsRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  contactItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    backgroundColor: theme.colors.background,
+  },
+  contactIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contactLabel: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.colors.secondary,
+  },
+  contactItemDanger: {
+    borderWidth: 1,
+    borderColor: theme.colors.error + '30',
+  },
+  reasonItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 6,
+    backgroundColor: theme.colors.background,
+    gap: 10,
+  },
+  reasonItemSelected: {
+    backgroundColor: theme.colors.primary + '15',
+  },
+  radioCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+  },
+  radioCircleSelected: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primary,
+  },
+  reasonText: {
+    fontSize: 14,
+    color: theme.colors.text,
+    flex: 1,
+  },
+  customReasonInput: { marginTop: 8 },
+  customReasonLabel: {
+    fontSize: 12,
+    color: theme.colors.textMuted,
+    marginBottom: 4,
+  },
+  textInputBox: {
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  textInput: { fontSize: 14, color: theme.colors.text },
+  textInputPlaceholder: { color: theme.colors.textMuted },
+  stickyFooter: {
     paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
   },
   acceptBtn: {
     backgroundColor: '#0284c7',
@@ -554,6 +861,10 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  assignSection: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.md,
   },
   sectionHeaderRow: {
     flexDirection: 'row',
@@ -569,16 +880,34 @@ const styles = StyleSheet.create({
   },
   courierList: {},
   courierItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     backgroundColor: theme.colors.surface,
     padding: 16,
     borderRadius: 16,
     marginBottom: 12,
     ...theme.shadows.soft,
+    gap: 12,
   },
-  courierInfo: { flexDirection: 'row', alignItems: 'center' },
+  courierItemTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  courierInfo: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  courierDetails: { flex: 1 },
+  courierPhone: {
+    fontSize: 12,
+    color: theme.colors.primary,
+    marginTop: 2,
+  },
+  courierCallBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#E0F2FE',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginStart: 8,
+  },
   courierAvatar: {
     width: 48,
     height: 48,
@@ -609,14 +938,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   assignBtn: {
-    backgroundColor: theme.colors.primaryLight,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    backgroundColor: theme.colors.primary,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   assignBtnText: {
-    color: theme.colors.primary,
-    fontSize: 12,
+    color: theme.colors.white,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   emptyCourier: {

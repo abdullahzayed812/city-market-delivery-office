@@ -2,9 +2,12 @@ import apiClient from './apiClient';
 import { ApiResponse, Delivery, AssignCourierDto } from '@city-market/shared';
 
 export const DeliveryService = {
-  getAllDeliveries: async () => {
-    const response = await apiClient.get<ApiResponse<Delivery[]>>('/delivery/deliveries');
-    return response.data?.data;
+  getAllDeliveries: async (page: number) => {
+    const response = await apiClient.get<ApiResponse<{ items: Delivery[]; hasNextPage: boolean }>>(
+      '/delivery/deliveries',
+      { params: { page, limit: 20 } },
+    );
+    return response.data.data!;
   },
   getPendingDeliveries: async () => {
     const response = await apiClient.get<ApiResponse<Delivery[]>>('/delivery/deliveries/pending');
@@ -20,6 +23,10 @@ export const DeliveryService = {
   },
   assignCourier: async (deliveryId: string, body: AssignCourierDto) => {
     const response = await apiClient.post<ApiResponse<null>>(`/delivery/deliveries/${deliveryId}/assign`, body);
+    return response.data?.data;
+  },
+  cancelByManager: async (deliveryId: string, reason: string) => {
+    const response = await apiClient.patch<ApiResponse<null>>(`/delivery/deliveries/${deliveryId}/cancel-by-manager`, { reason });
     return response.data?.data;
   },
 
