@@ -27,7 +27,7 @@ import { useCourierProfile } from '../hooks/useDeliveryProfile';
 
 const ProfileScreen = () => {
   const { t, i18n } = useTranslation();
-  const { signOut } = useAuth();
+  const { signOut, signOutAllDevices } = useAuth();
   const isRTL = i18n.language === 'ar';
 
   const { profile, isLoading } = useCourierProfile();
@@ -139,6 +139,11 @@ const ProfileScreen = () => {
         <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
           <LogOut size={20} color={theme.colors.error} />
           <Text style={styles.logoutText}>{t('common.logout')}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={signOutAllDevices}>
+          <LogOut size={20} color={theme.colors.error} />
+          <Text style={styles.logoutText}>{t('common.logout_all_devices')}</Text>
         </TouchableOpacity>
 
         <Text style={styles.versionText}>

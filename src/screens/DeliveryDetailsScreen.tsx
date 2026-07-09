@@ -25,6 +25,7 @@ import {
   XCircle,
   UserRound,
   Phone,
+  Timer,
 } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../theme';
@@ -60,6 +61,9 @@ const DeliveryDetailsScreen = ({ route }: any) => {
     isAssigning,
     cancelDelivery,
     isCancelling,
+    acceptanceCountdown,
+    assignmentCountdown,
+    pickupCountdown,
   } = useDeliveryDetails(deliveryId);
 
   const handleCall = (phone: string | undefined) => {
@@ -173,6 +177,57 @@ const DeliveryDetailsScreen = ({ route }: any) => {
             </View>
           </View>
         </View>
+
+        {acceptanceCountdown.remainingSeconds > 0 && !acceptanceCountdown.isExpired && (
+          <View style={[
+            styles.countdownBanner,
+            acceptanceCountdown.isWarning && { backgroundColor: '#fee2e2', borderColor: '#fca5a5' },
+          ]}>
+            <Timer size={18} color={acceptanceCountdown.isWarning ? '#dc2626' : '#b45309'} />
+            <View>
+              <Text style={[styles.countdownTitle, acceptanceCountdown.isWarning && { color: '#991b1b' }]}>
+                {t('deliveries.accept_deadline', 'Accept before')}
+              </Text>
+              <Text style={[styles.countdownTimer, acceptanceCountdown.isWarning && { color: '#dc2626' }]}>
+                {acceptanceCountdown.formattedTime}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {assignmentCountdown.remainingSeconds > 0 && !assignmentCountdown.isExpired && (
+          <View style={[
+            styles.countdownBanner,
+            assignmentCountdown.isWarning && { backgroundColor: '#fee2e2', borderColor: '#fca5a5' },
+          ]}>
+            <Timer size={18} color={assignmentCountdown.isWarning ? '#dc2626' : '#b45309'} />
+            <View>
+              <Text style={[styles.countdownTitle, assignmentCountdown.isWarning && { color: '#991b1b' }]}>
+                {t('deliveries.assign_deadline', 'Assign courier before')}
+              </Text>
+              <Text style={[styles.countdownTimer, assignmentCountdown.isWarning && { color: '#dc2626' }]}>
+                {assignmentCountdown.formattedTime}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {pickupCountdown.remainingSeconds > 0 && !pickupCountdown.isExpired && (
+          <View style={[
+            styles.countdownBanner,
+            pickupCountdown.isWarning && { backgroundColor: '#fee2e2', borderColor: '#fca5a5' },
+          ]}>
+            <Timer size={18} color={pickupCountdown.isWarning ? '#dc2626' : '#b45309'} />
+            <View>
+              <Text style={[styles.countdownTitle, pickupCountdown.isWarning && { color: '#991b1b' }]}>
+                {t('deliveries.pickup_deadline', 'Pickup before')}
+              </Text>
+              <Text style={[styles.countdownTimer, pickupCountdown.isWarning && { color: '#dc2626' }]}>
+                {pickupCountdown.formattedTime}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {!isPending && (
           <View style={styles.contactsCard}>

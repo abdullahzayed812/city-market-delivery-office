@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setSignOutCallback } from '../services/api/apiClient';
+import { AuthService } from '../services/api/authService';
+import { SecureStorage } from '../services/secureStorage';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -9,6 +11,7 @@ interface AuthContextType {
   token: string | null;
   signIn: (user: any, accessToken: string, refreshToken: string) => Promise<void>;
   signOut: () => Promise<void>;
+  signOutAllDevices: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuth = async () => {
     try {
-      const savedToken = await AsyncStorage.getItem('auth_token');
+      const savedToken = await SecureStorage.getAccessToken();
       const savedUser = await AsyncStorage.getItem('auth_user');
 
       if (savedToken && savedUser) {
@@ -51,8 +54,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const signIn = async (user: any, accessToken: string, refreshToken: string) => {
-    await AsyncStorage.setItem('auth_token', accessToken);
-    await AsyncStorage.setItem('refresh_token', refreshToken);
+    await SecureStorage.setAccessToken(accessToken);
+    await SecureStorage.setRefreshToken(refreshToken);
     await AsyncStorage.setItem('auth_user', JSON.stringify(user));
 
     setToken(accessToken);
@@ -60,20 +63,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsAuthenticated(true);
   };
 
-  const signOut = async () => {
-    await AsyncStorage.multiRemove([
-      'auth_token',
-      'refresh_token',
-      'auth_user',
-    ]);
+  const clearLocalState = async () => {
+    await SecureStorage.clearAll();
+    await AsyncStorage.removeItem('auth_user');
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
   };
 
+  const signOut = async () => {
+    try {
+      await AuthService.logout();
+    } catch {
+      // ignore — we still clear local state
+    }
+    await clearLocalState();
+  };
+
+  const signOutAllDevices = async () => {
+    try {
+      await AuthService.logoutAll();
+    } catch {
+      // ignore — we still clear local state
+    }
+    await clearLocalState();
+  };
+
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, isLoading, user, token, signIn, signOut }}
+      value={{ isAuthenticated, isLoading, user, token, signIn, signOut, signOutAllDevices }}
     >
       {children}
     </AuthContext.Provider>
