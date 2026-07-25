@@ -80,7 +80,7 @@ const DeliveriesScreen = ({ navigation }: any) => {
             </View>
             <View style={styles.headerInfo}>
               <Text style={styles.idText}>
-                Order #{item.customerOrderId?.slice(-6)}
+                {t('deliveries.order_number', { id: item.customerOrderId?.slice(-6) })}
               </Text>
               <View style={styles.timeRow}>
                 <Clock size={12} color={theme.colors.textLight} />

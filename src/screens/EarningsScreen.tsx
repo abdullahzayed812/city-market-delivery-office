@@ -426,6 +426,9 @@ const CouriersTab: React.FC = () => {
                 <Text style={styles.cardTitle}>
                   {new Date(s.periodStart).toLocaleDateString()} – {new Date(s.periodEnd).toLocaleDateString()}
                 </Text>
+                {!selectedCourier && !!s.courierName && (
+                  <Text style={styles.cardCourierName}>{s.courierName}</Text>
+                )}
                 <View style={styles.cardMeta}>
                   <Calendar size={11} color={theme.colors.textLight} />
                   <Text style={styles.cardMetaText}>
@@ -575,6 +578,7 @@ const styles = StyleSheet.create({
     marginEnd: 12,
   },
   cardTitle: { fontSize: 13, fontWeight: 'bold', color: theme.colors.secondary },
+  cardCourierName: { fontSize: 11, color: theme.colors.primary, fontWeight: '600', marginTop: 2 },
   cardMeta: { flexDirection: 'row', alignItems: 'center', marginTop: 2 },
   cardMetaText: { fontSize: 11, color: theme.colors.textLight, marginStart: 3 },
   cardAmount: { fontSize: 14, fontWeight: 'bold', color: theme.colors.success },

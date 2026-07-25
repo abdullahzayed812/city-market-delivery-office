@@ -18,7 +18,8 @@
     "call": "Contact Driver",
     "currency": "EGP",
     "back": "Back",
-    "vendor": "Vendor"
+    "vendor": "Vendor",
+    "rating": "Rating"
   },
   "auth": {
     "login_title": "Dispatch Portal",
@@ -52,6 +53,10 @@
     "title": "Order Dispatch",
     "details": "Dispatch Details",
     "status": "Order Status",
+    "order_number": "Order #{{id}}",
+    "accept_deadline": "Accept before",
+    "assign_deadline": "Assign courier before",
+    "pickup_deadline": "Pickup before",
     "pickup_location": "Pickup Branch/Vendor",
     "delivery_destination": "Customer Destination",
     "delivery_successful": "Order Fulfilled",

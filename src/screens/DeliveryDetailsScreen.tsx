@@ -186,7 +186,7 @@ const DeliveryDetailsScreen = ({ route }: any) => {
             <Timer size={18} color={acceptanceCountdown.isWarning ? '#dc2626' : '#b45309'} />
             <View>
               <Text style={[styles.countdownTitle, acceptanceCountdown.isWarning && { color: '#991b1b' }]}>
-                {t('deliveries.accept_deadline', 'Accept before')}
+                {t('deliveries.accept_deadline')}
               </Text>
               <Text style={[styles.countdownTimer, acceptanceCountdown.isWarning && { color: '#dc2626' }]}>
                 {acceptanceCountdown.formattedTime}
@@ -203,7 +203,7 @@ const DeliveryDetailsScreen = ({ route }: any) => {
             <Timer size={18} color={assignmentCountdown.isWarning ? '#dc2626' : '#b45309'} />
             <View>
               <Text style={[styles.countdownTitle, assignmentCountdown.isWarning && { color: '#991b1b' }]}>
-                {t('deliveries.assign_deadline', 'Assign courier before')}
+                {t('deliveries.assign_deadline')}
               </Text>
               <Text style={[styles.countdownTimer, assignmentCountdown.isWarning && { color: '#dc2626' }]}>
                 {assignmentCountdown.formattedTime}
@@ -220,7 +220,7 @@ const DeliveryDetailsScreen = ({ route }: any) => {
             <Timer size={18} color={pickupCountdown.isWarning ? '#dc2626' : '#b45309'} />
             <View>
               <Text style={[styles.countdownTitle, pickupCountdown.isWarning && { color: '#991b1b' }]}>
-                {t('deliveries.pickup_deadline', 'Pickup before')}
+                {t('deliveries.pickup_deadline')}
               </Text>
               <Text style={[styles.countdownTimer, pickupCountdown.isWarning && { color: '#dc2626' }]}>
                 {pickupCountdown.formattedTime}
@@ -555,7 +555,7 @@ const DeliveryDetailsScreen = ({ route }: any) => {
                     </View>
                     <View style={styles.detailItem}>
                       <Star size={16} color={theme.colors.warning} />
-                      <Text style={styles.detailText}>4.8 Rating</Text>
+                      <Text style={styles.detailText}>4.8 {t('common.rating')}</Text>
                     </View>
                   </View>
                 </View>

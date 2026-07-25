@@ -18,7 +18,8 @@
     "call": "اتصال بالسائق",
     "currency": "ج.م",
     "back": "رجوع",
-    "vendor": "متجر"
+    "vendor": "متجر",
+    "rating": "التقييم"
   },
   "auth": {
     "login_title": "بوابة التوزيع",
@@ -52,6 +53,10 @@
     "title": "توزيع الطلبات",
     "details": "تفاصيل التوزيع",
     "status": "حالة الطلب",
+    "order_number": "الطلب #{{id}}",
+    "accept_deadline": "القبول قبل",
+    "assign_deadline": "تعيين السائق قبل",
+    "pickup_deadline": "الاستلام قبل",
     "pickup_location": "فرع الاستلام / المتجر",
     "delivery_destination": "وجهة العميل",
     "delivery_successful": "تم تنفيذ الطلب",
