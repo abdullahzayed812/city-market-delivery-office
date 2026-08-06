@@ -8,6 +8,7 @@
     "start": "react-native start"
   },
   "dependencies": {
+    "@city-market/mobile-ui": "file:../shared-ui",
     "@city-market/shared": "file:../../shared",
     "@react-native-async-storage/async-storage": "^1.19.1",
     "@react-native-firebase/app": "^23.8.6",
