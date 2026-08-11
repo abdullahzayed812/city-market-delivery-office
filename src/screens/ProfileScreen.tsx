@@ -88,7 +88,9 @@ const ProfileScreen = () => {
               <Settings size={14} color={theme.colors.white} />
             </TouchableOpacity>
           </View>
-          <Text style={styles.nameText}>{profile?.fullName || 'Admin'}</Text>
+          <Text style={styles.nameText} numberOfLines={2} adjustsFontSizeToFit>
+            {profile?.fullName || 'Admin'}
+          </Text>
           <View style={styles.roleBadge}>
             <ShieldCheck size={14} color={theme.colors.success} />
             <Text style={styles.roleText}>{t('profile.verified_manager')}</Text>
@@ -194,6 +196,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: theme.typography.weights.bold,
     color: theme.colors.secondary,
+    textAlign: 'center',
   },
   roleBadge: {
     flexDirection: 'row',
