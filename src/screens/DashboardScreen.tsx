@@ -1,17 +1,24 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, StatusBar } from 'react-native';
+import React, { useCallback } from 'react';
+import { View, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, StatusBar, RefreshControl } from 'react-native';
 import { AppText as Text } from '@city-market/mobile-ui';
 import { useTranslation } from 'react-i18next';
 import { theme } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Truck, Package, Clock, ChevronRight, Bell, Navigation } from 'lucide-react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useDeliveries } from '../hooks/useDeliveries';
 import CustomHeader from '../components/common/CustomHeader';
 
 const DashboardScreen = ({ navigation }: any) => {
   const { t, i18n } = useTranslation();
-  const { allDeliveries, pendingDeliveries, isLoading } = useDeliveries();
+  const { allDeliveries, pendingDeliveries, isLoading, refetch, isRefetching } = useDeliveries();
   const isRTL = i18n.language === 'ar';
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   const StatCard = ({ icon: Icon, label, value, color, subtitle }: any) => (
     <View style={styles.statCard}>
@@ -48,9 +55,16 @@ const DashboardScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent} 
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={theme.colors.primary}
+          />
+        }
       >
         <View style={styles.statsContainer}>
           <StatCard 
