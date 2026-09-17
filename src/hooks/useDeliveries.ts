@@ -45,7 +45,7 @@ export const useDeliveries = () => {
   const refetch = useCallback(() => {
     allQuery.refetch();
     pendingQuery.refetch();
-  }, [allQuery, pendingQuery]);
+  }, [allQuery.refetch, pendingQuery.refetch]);
 
   return {
     allDeliveries: allQuery.data?.pages.flatMap(p => p.items ?? []) ?? [],
