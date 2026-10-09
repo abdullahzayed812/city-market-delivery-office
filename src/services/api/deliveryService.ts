@@ -1,7 +1,66 @@
 import apiClient from './apiClient';
 import { ApiResponse, Delivery, AssignCourierDto } from '@city-market/shared';
 
+export interface DeliveryRatingsResult {
+  summary: { averageRating: number | null; totalRatings: number; distribution: Record<string, number> };
+  items: Array<{
+    id: string;
+    customerOrderId: string;
+    courierId: string;
+    courierName: string | null;
+    stars: number;
+    comment: string | null;
+    createdAt: string;
+  }>;
+  hasNextPage: boolean;
+}
+
+export interface MyOffice {
+  id: string;
+  name: string;
+  phone?: string;
+  address?: string;
+  approvalStatus: 'PENDING_REVIEW' | 'APPROVED' | 'SUSPENDED';
+  isActive: boolean;
+}
+
+export interface PickedImage {
+  uri: string;
+  type?: string;
+  fileName?: string;
+}
+
+// media-service picks the storage path inside the folder
+const uploadDocument = async (image: PickedImage, folder: 'office-documents' | 'courier-documents'): Promise<string> => {
+  const form = new FormData();
+  form.append('file', { uri: image.uri, type: image.type || 'image/jpeg', name: image.fileName || 'document.jpg' } as any);
+  form.append('folder', folder);
+  const response = await apiClient.post<ApiResponse<{ url: string }>>('/media/upload', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 60_000,
+  });
+  return response.data.data!.url;
+};
+
 export const DeliveryService = {
+  // The signed-in manager's office; 404 until they register one
+  getMyOffice: async () => {
+    const response = await apiClient.get<ApiResponse<MyOffice>>('/delivery/delivery-offices/me');
+    return response.data?.data;
+  },
+  registerOffice: async (dto: { name: string; phone: string; address: string; ownerNationalIdUrl: string; commercialRegisterUrl: string }) => {
+    const response = await apiClient.post<ApiResponse<MyOffice>>('/delivery/delivery-offices/register', dto);
+    return response.data?.data;
+  },
+  // Office signup document; media-service picks the storage path
+  uploadOfficeDocument: (image: PickedImage) => uploadDocument(image, 'office-documents'),
+  // Identity documents of a courier the manager is adding to the office
+  uploadCourierDocument: (image: PickedImage) => uploadDocument(image, 'courier-documents'),
+  // Customer ratings of this office's deliveries (optionally one courier)
+  getDeliveryRatings: async (params?: { courierId?: string; limit?: number }) => {
+    const response = await apiClient.get<ApiResponse<DeliveryRatingsResult>>('/delivery/delivery-ratings', { params });
+    return response.data?.data;
+  },
   getAllDeliveries: async (page: number) => {
     const response = await apiClient.get<ApiResponse<{ items: Delivery[]; hasNextPage: boolean }>>(
       '/delivery/deliveries',

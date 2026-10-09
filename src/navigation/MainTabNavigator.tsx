@@ -8,6 +8,9 @@ import DeliveriesScreen from '../screens/DeliveriesScreen';
 import DeliveryDetailsScreen from '../screens/DeliveryDetailsScreen';
 import EarningsScreen from '../screens/EarningsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import RatingsScreen from '../screens/RatingsScreen';
+import CouriersScreen from '../screens/CouriersScreen';
+import AddCourierScreen from '../screens/AddCourierScreen';
 import { theme } from '../theme';
 
 const Tab = createBottomTabNavigator();
@@ -20,6 +23,16 @@ const DeliveriesStack = () => (
   >
     <Stack.Screen name="DeliveriesList" component={DeliveriesScreen} />
     <Stack.Screen name="DeliveryDetails" component={DeliveryDetailsScreen} />
+  </Stack.Navigator>
+);
+
+// Dashboard + the office ratings and couriers screens it links to
+const DashboardStack = () => (
+  <Stack.Navigator initialRouteName="Dashboard" screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="Dashboard" component={DashboardScreen} />
+    <Stack.Screen name="Ratings" component={RatingsScreen} />
+    <Stack.Screen name="Couriers" component={CouriersScreen} />
+    <Stack.Screen name="AddCourier" component={AddCourierScreen} />
   </Stack.Navigator>
 );
 
@@ -40,7 +53,7 @@ const MainTabNavigator = () => {
     >
       <Tab.Screen
         name="DashboardTab"
-        component={DashboardScreen}
+        component={DashboardStack}
         options={{
           title: t('dashboard.title'),
           tabBarIcon: ({ color, size }) => (

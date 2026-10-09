@@ -4,14 +4,21 @@ import { AppText as Text } from '@city-market/mobile-ui';
 import { useTranslation } from 'react-i18next';
 import { theme } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Truck, Package, Clock, ChevronRight, Bell, Navigation } from 'lucide-react-native';
+import { Truck, Package, Clock, ChevronRight, Bell, Navigation, Star, Users } from 'lucide-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDeliveries } from '../hooks/useDeliveries';
+import { useQuery } from '@tanstack/react-query';
+import { DeliveryService } from '../services/api/deliveryService';
 import CustomHeader from '../components/common/CustomHeader';
 
 const DashboardScreen = ({ navigation }: any) => {
   const { t, i18n } = useTranslation();
   const { allDeliveries, pendingDeliveries, isLoading, refetch, isRefetching } = useDeliveries();
+  // Office rating from customers (each delivery rating counts for the courier and the office)
+  const { data: ratings } = useQuery({
+    queryKey: ['deliveryRatings', 'office'],
+    queryFn: () => DeliveryService.getDeliveryRatings({ limit: 50 }),
+  });
   const isRTL = i18n.language === 'ar';
 
   useFocusEffect(
@@ -83,6 +90,28 @@ const DashboardScreen = ({ navigation }: any) => {
           />
         </View>
 
+        <TouchableOpacity style={styles.ratingCard} onPress={() => navigation.navigate('Ratings')}>
+          <Star size={22} color={theme.colors.warning} fill={theme.colors.warning} />
+          <View style={styles.ratingText}>
+            <Text style={styles.ratingTitle}>{t('ratings.office_rating')}</Text>
+            <Text style={styles.ratingValue}>
+              {ratings?.summary.averageRating != null
+                ? `${ratings.summary.averageRating.toFixed(1)} · ${t('ratings.count', { count: ratings.summary.totalRatings })}`
+                : t('ratings.no_reviews')}
+            </Text>
+          </View>
+          <ChevronRight size={20} color={theme.colors.textMuted} style={isRTL && { transform: [{ rotate: '180deg' }] }} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.ratingCard} onPress={() => navigation.navigate('Couriers')}>
+          <Users size={22} color={theme.colors.primary} />
+          <View style={styles.ratingText}>
+            <Text style={styles.ratingTitle}>{t('office_couriers.title')}</Text>
+            <Text style={styles.ratingValue}>{t('office_couriers.card_subtitle')}</Text>
+          </View>
+          <ChevronRight size={20} color={theme.colors.textMuted} style={isRTL && { transform: [{ rotate: '180deg' }] }} />
+        </TouchableOpacity>
+
         <View style={styles.actionBanner}>
           <View style={styles.bannerInfo}>
             <Navigation size={28} color={theme.colors.white} />
@@ -139,6 +168,19 @@ const DashboardScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
+  ratingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.radius.md,
+    padding: 16,
+    marginBottom: 16,
+    ...theme.shadows.soft,
+  },
+  ratingText: { flex: 1 },
+  ratingTitle: { fontWeight: 'bold', color: theme.colors.text },
+  ratingValue: { color: theme.colors.textMuted, marginTop: 2 },
   container: { flex: 1, backgroundColor: theme.colors.background },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   headerRow: {

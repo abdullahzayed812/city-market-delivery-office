@@ -36,6 +36,10 @@ export const useDeliveries = () => {
       EventType.ORDER_PICKED_UP,
       EventType.ORDER_ON_THE_WAY,
       EventType.ORDER_DELIVERED,
+      // Pool changes: another office accepted, a freelancer claimed, or it came back
+      EventType.DELIVERY_CLAIMED,
+      EventType.DELIVERY_RETURNED_TO_POOL,
+      EventType.DELIVERY_RELEASED_BY_COURIER,
     ];
 
     events.forEach(event => socket.on(event, invalidate));

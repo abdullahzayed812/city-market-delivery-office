@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setSignOutCallback } from '../services/api/apiClient';
 import { AuthService } from '../services/api/authService';
 import { SecureStorage } from '../services/secureStorage';
+import { queryClient } from './APIProvider';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -26,6 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     setSignOutCallback(() => {
+      queryClient.clear();
       setToken(null);
       setUser(null);
       setIsAuthenticated(false);
@@ -58,12 +60,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     await SecureStorage.setRefreshToken(refreshToken);
     await AsyncStorage.setItem('auth_user', JSON.stringify(user));
 
+    // Drop anything cached for a previous user (incl. the office gate's profile)
+    queryClient.clear();
     setToken(accessToken);
     setUser(user);
     setIsAuthenticated(true);
   };
 
   const clearLocalState = async () => {
+    // Cached data belongs to the user who is leaving
+    queryClient.clear();
     await SecureStorage.clearAll();
     await AsyncStorage.removeItem('auth_user');
     setToken(null);
